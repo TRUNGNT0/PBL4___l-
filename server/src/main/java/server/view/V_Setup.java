@@ -46,7 +46,7 @@ public class V_Setup extends JFrame implements ActionListener{
         centerPanel.setBackground(backgroundColor);
         centerPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
         // JTextField
-        tf_HomeDirectoryPath = new JTextField("D:\\OneDrive - The University of Technology\\Desktop\\PBL4_RemoveFolder\\PBL4_Server\\home");
+        tf_HomeDirectoryPath = new JTextField("D:\\OneDrive - The University of Technology\\Desktop\\home");
         tf_HomeDirectoryPath.setEditable(false); // Không cho chỉnh sửa
         tf_HomeDirectoryPath.setBackground(Color.WHITE);
         tf_HomeDirectoryPath.setPreferredSize(new Dimension(300, 30));
@@ -60,7 +60,7 @@ public class V_Setup extends JFrame implements ActionListener{
 
         //
         // Bottom Panel (Button Start)
-        //
+        // 
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBackground(backgroundColor);
         btn_Start = new JButton("Start");

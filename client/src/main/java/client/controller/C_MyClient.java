@@ -1,23 +1,24 @@
 package client.controller;
 
-import client.model.M_FileHandler;
-import client.model.M_AuthHandler;
-
 import java.io.IOException;
 import java.util.List;
+
+import client.model.BO.M_Login;
+import client.model.BO.M_FileHandler;
+import client.model.Bean.FileInformation;
 
 public class C_MyClient {
     private static C_MyClient instance;  // Đối tượng duy nhất của C_MyClient
     private NetworkHandler networkHandler;
     private M_FileHandler fileHandler;
-    private M_AuthHandler authHandler;
+    private M_Login authHandler;
 
     private String username;  // Biến lưu username
 
     // Constructor riêng tư để ngăn chặn việc tạo đối tượng từ ngoài
     private C_MyClient(String serverAddress, int serverPort) {
         this.networkHandler = new NetworkHandler(serverAddress, serverPort);
-        this.authHandler = new M_AuthHandler();
+        this.authHandler = new M_Login();
     }
 
     // Phương thức tĩnh để lấy ra đối tượng duy nhất của C_MyClient
@@ -54,6 +55,14 @@ public class C_MyClient {
         disconnect();
         return loginSuccess;
     }
+    
+    public void goToDirectory(String derectoryName) {
+    	fileHandler.goToDirectory(derectoryName);
+    }
+    
+    public void goBackDirectory() {
+    	fileHandler.goBackDirectory();
+    }
 
     public void upLoad(String filePath) {
         connect();
@@ -62,12 +71,20 @@ public class C_MyClient {
         disconnect();
     }
 
-    public String[] load() {
+    public FileInformation[] load() {
         connect();
         networkHandler.sendCommand("LOAD");
-        String a[] = fileHandler.load(networkHandler.getInputStream(), networkHandler.getOutputStream());
+        FileInformation a[] = fileHandler.load(networkHandler.getInputStream(), networkHandler.getOutputStream());
         disconnect();
         return a;
+    }
+    
+    public boolean checkDownLoad() {
+    	return fileHandler.checkDownLoad();
+    }
+    
+    public void setDownLoad(String path) {
+    	fileHandler.setDownLoad(path);
     }
 
     public void downLoadFile(List<String> fileList, String downloadDirectory) {

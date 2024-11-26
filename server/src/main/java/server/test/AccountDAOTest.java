@@ -1,6 +1,6 @@
 package server.test;
 
-import server.model.BO.Account;
+import server.model.Bean.Account;
 import server.model.DAO.AccountDAO;
 
 public class AccountDAOTest {

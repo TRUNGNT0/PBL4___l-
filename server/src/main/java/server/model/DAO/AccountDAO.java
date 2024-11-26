@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import server.model.BO.Account;
+import server.model.Bean.Account;
 import server.model.database.JDBCUtil;
 
 public class AccountDAO implements DAOInterface<Account>{

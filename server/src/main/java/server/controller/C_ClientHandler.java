@@ -5,11 +5,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import server.model.M_FileDeleteHandler;
-import server.model.M_FileDownloadHandler;
-import server.model.M_FileUploadHandler;
-import server.model.M_DirectoryHandler;
-import server.model.LoginHandler;
+import server.model.BO.LoginHandler;
+import server.model.BO.M_DirectoryHandler;
+import server.model.BO.M_FileDeleteHandler;
+import server.model.BO.M_FileDownloadHandler;
+import server.model.BO.M_FileUploadHandler;
 
 public class C_ClientHandler implements Runnable {
     private Socket socket;

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import client.controller.C_MyClient;
+import client.model.Bean.FileInformation;
 
 public class V_TrangChu extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
@@ -18,11 +19,13 @@ public class V_TrangChu extends JFrame implements ActionListener {
     private JPanel fileListPanel;
     private JScrollPane scrollPane;
     private List<V_ComponentFile> selectedComponents; // Danh sách các file được chọn
+    //private List<V_ComponentDirectory> selectedDirectories;	//Danh sách các Directory được chọn
 
     public V_TrangChu() {
         initUI();
         client = C_MyClient.getInstance("localhost", 8888);
         selectedComponents = new ArrayList<>();
+        //selectedDirectories = new ArrayList<>();
 
         // Tải danh sách file từ server
         updateFileList(client.load());
@@ -70,7 +73,7 @@ public class V_TrangChu extends JFrame implements ActionListener {
         add(menuPanel, BorderLayout.WEST);
 
         // Menu buttons
-        String[] menuItems = {"UpLoad", "Load", "DownLoad", "Delete"};
+        String[] menuItems = {"UpLoad", "Load", "DownLoad", "Delete", "Back", "Setting"};
         for (String item : menuItems) {
             JButton button = new JButton(item);
             button.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -103,14 +106,19 @@ public class V_TrangChu extends JFrame implements ActionListener {
     /**
      * Hiển thị danh sách file từ server.
      */
-    private void updateFileList(String[] fileNames) {
+    private void updateFileList(FileInformation[] fileInformationList) {
         fileListPanel.removeAll();
         selectedComponents = new ArrayList<>();
 
-        if (fileNames != null) {
-            for (String fileName : fileNames) {
-                V_ComponentFile fileComponent = new V_ComponentFile(fileName, this);
-                fileListPanel.add(fileComponent);
+        if (fileInformationList != null) {
+            for (FileInformation file : fileInformationList) {
+            	if(file.isFile()) {
+            		V_ComponentFile fileComponent = new V_ComponentFile(file.getName(), file.getLastModified(), file.getSize(), this);
+            		fileListPanel.add(fileComponent);
+            	} else {
+            		V_ComponentDirectory directoryComponentDirectory = new V_ComponentDirectory(file.getName(), this);
+            		fileListPanel.add(directoryComponentDirectory);
+            	}
             }
         }
 
@@ -138,6 +146,29 @@ public class V_TrangChu extends JFrame implements ActionListener {
         }
         selectedComponents.clear();
     }
+    
+    /**
+     * Cập nhật danh sách các folder được chọn.
+     */
+    
+//    public void updateDirectorySelections(V_ComponentDirectory component) {
+//        if (component.isSelected() && !selectedDirectories.contains(component)) {
+//            selectedDirectories.add(component);
+//        } else if (!component.isSelected()) {
+//            selectedDirectories.remove(component);
+//        }
+//    }
+//    
+//    /**
+//     * Hủy chọn toàn bộ các folder.
+//     */
+//
+//    public void clearDirectorySelections() {
+//        for (V_ComponentDirectory component : selectedDirectories) {
+//            component.setSelected(false);
+//        }
+//        selectedDirectories.clear();
+//    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -158,7 +189,9 @@ public class V_TrangChu extends JFrame implements ActionListener {
             case "Delete":
                 handleDelete();
                 break;
-
+            case "Back":
+            	goBackDirectory();
+            	break;
             default:
                 JOptionPane.showMessageDialog(this, "Lựa chọn không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 break;
@@ -169,6 +202,7 @@ public class V_TrangChu extends JFrame implements ActionListener {
      * Xử lý tải lên file.
      */
     private void handleUpload() {
+    	fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
@@ -182,17 +216,28 @@ public class V_TrangChu extends JFrame implements ActionListener {
      */
     private void handleDownload() {
         if (!selectedComponents.isEmpty()) {
-            // Mở JFileChooser để chọn thư mục lưu file
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            int result = fileChooser.showSaveDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File directory = fileChooser.getSelectedFile();
-                List<String> selectedFiles = new ArrayList<>();
+        	if(client.checkDownLoad()) {
+        		List<String> selectedFiles = new ArrayList<>();
                 for (V_ComponentFile component : selectedComponents) {
                     selectedFiles.add(component.getFileName());
                 }
-                client.downLoadFile(selectedFiles, directory.getAbsolutePath());
-            }
+        		client.downLoadFile(selectedFiles, "OKE");
+        	} else {
+        		// Mở JFileChooser để chọn thư mục lưu file
+                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int result = fileChooser.showSaveDialog(this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File directory = fileChooser.getSelectedFile();
+                    List<String> selectedFiles = new ArrayList<>();
+                    for (V_ComponentFile component : selectedComponents) {
+                        selectedFiles.add(component.getFileName());
+                    }
+                    client.setDownLoad(directory.getAbsolutePath());
+                    //client.downLoadFile(selectedFiles, directory.getAbsolutePath());
+                    client.downLoadFile(selectedFiles, "Sum");
+                }
+        	}
+        	
         } else {
             JOptionPane.showMessageDialog(this, "Bạn chưa chọn file để tải xuống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
@@ -214,7 +259,13 @@ public class V_TrangChu extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String[] args) {
-        new V_TrangChu();
+    public void goToDirectory(String directoryName) {
+    	client.goToDirectory(directoryName);
+    	updateFileList(client.load());
+    }
+    
+    public void goBackDirectory() {
+        client.goBackDirectory();
+        updateFileList(client.load());
     }
 }

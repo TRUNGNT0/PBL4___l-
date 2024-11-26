@@ -1,4 +1,4 @@
-package client.view;
+ package client.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import client.controller.C_MyClient;
@@ -24,7 +25,7 @@ public class V_Login extends JFrame {
     private JLabel lb_UserName;
     private JLabel lb_Password;
     private JTextField tf_UserName;
-    private JTextField tf_Password;
+    private JPasswordField tf_Password;
     private JButton btn_Login;
 
     // Controller
@@ -33,7 +34,7 @@ public class V_Login extends JFrame {
     // Constructor
     public V_Login() {
         init();
-        controller = C_MyClient.getInstance("localhost", 8888); // Giả sử controller đã được khởi tạo
+        controller = C_MyClient.getInstance("localhost", 8888);
     }
 
     // Initialize components and layout
@@ -43,11 +44,11 @@ public class V_Login extends JFrame {
         this.setSize(853, 480);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
-        this.getContentPane().setBackground(Color.decode("#CFE1B9"));
+        this.getContentPane().setBackground(Color.decode("#F2DDDC"));
 
         // Center panel for form layout
         JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.setBackground(Color.decode("#CFE1B9"));
+        centerPanel.setBackground(Color.decode("#F2DDDC"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -71,15 +72,15 @@ public class V_Login extends JFrame {
         gbc.gridy = 1;
         centerPanel.add(lb_Password, gbc);
 
-        tf_Password = new JTextField();
-        tf_Password.setPreferredSize(new Dimension(200, 30)); // Set size of the text field
+        tf_Password = new JPasswordField();
+        tf_Password.setPreferredSize(new Dimension(200, 30));
         gbc.gridx = 1;
         gbc.gridy = 1;
         centerPanel.add(tf_Password, gbc);
-
+        
         // South panel for the login button
         JPanel southPanel = new JPanel();
-        southPanel.setBackground(Color.decode("#CFE1B9"));
+        southPanel.setBackground(Color.decode("#F2DDDC"));
 
         btn_Login = new JButton("Đăng nhập");
         btn_Login.setPreferredSize(new Dimension(150, 40)); // Optional, for consistent button size
@@ -89,6 +90,7 @@ public class V_Login extends JFrame {
                 handleLogin(); // Handle login when button is clicked
             }
         });
+        this.getRootPane().setDefaultButton(btn_Login);
         southPanel.add(btn_Login);
 
         // Add panels to frame
@@ -98,8 +100,10 @@ public class V_Login extends JFrame {
 
     // Handle login process
     private void handleLogin() {
+    	
+    	
         String username = tf_UserName.getText().trim();
-        String password = tf_Password.getText().trim();
+        String password = new String(tf_Password.getPassword());
 
         if (username.isEmpty() || password.isEmpty()) {
             // Nếu thiếu trường nào thì hiển thị thông báo lỗi
@@ -121,8 +125,8 @@ public class V_Login extends JFrame {
     }
 
     // Main method for testing
-    public static void main(String[] args) {
-        V_Login loginFrame = new V_Login();
-        loginFrame.setVisible(true);
-    }
+//    public static void main(String[] args) {
+//        V_Login loginFrame = new V_Login();
+//        loginFrame.setVisible(true);
+//    }
 }
