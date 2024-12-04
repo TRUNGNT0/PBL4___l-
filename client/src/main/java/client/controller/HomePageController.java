@@ -69,8 +69,10 @@ public class HomePageController implements ActionListener{
     
     private void btn_Upload_Click() {
     	String path = view.chooseFile();
-    	upLoadFile(path);
-    	btn_Load_Click();
+    	if(!path.isEmpty()) {
+    		upLoadFile(path);
+        	btn_Load_Click();
+    	}
     }
     
     private void upLoadFile(String path) {
@@ -106,13 +108,17 @@ public class HomePageController implements ActionListener{
 
 	private void btn_Delete_Click() {
 		List<FileInformation> fileInformationList = view.getselectedFile();
-		networkController.connect();
-        networkController.sendCommand("DELETE");
-        fileDeleter.deleteFiles(directoryHandler.getCurrentDirectoryPath(), fileInformationList, 
-        		networkController.getInputStream(), networkController.getOutputStream());
-        networkController.disconnect();
-        
-        btn_Load_Click();
+		if(!fileInformationList.isEmpty()) {
+			networkController.connect();
+	        networkController.sendCommand("DELETE");
+	        fileDeleter.deleteFiles(directoryHandler.getCurrentDirectoryPath(), fileInformationList, 
+	        		networkController.getInputStream(), networkController.getOutputStream());
+	        networkController.disconnect();
+	        
+	        btn_Load_Click();
+		} else {
+			view.showError("Chưa chọn file để xóa");
+		}
     }
 	
 	private void btn_Back_Click() {

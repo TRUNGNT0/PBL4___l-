@@ -48,7 +48,7 @@ public class LoginPage extends JFrame {
 
         // Center panel for form layout
         JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.setBackground(Color.decode("#F2DDDC"));
+        centerPanel.setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -80,7 +80,7 @@ public class LoginPage extends JFrame {
         
         // South panel for the login button
         JPanel southPanel = new JPanel();
-        southPanel.setBackground(Color.decode("#F2DDDC"));
+        southPanel.setOpaque(false);
 
         btn_Login = new JButton("Đăng nhập");
         btn_Login.setPreferredSize(new Dimension(150, 40)); // Optional, for consistent button size

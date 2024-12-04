@@ -52,13 +52,15 @@ public class ComponentFileController implements MouseListener{
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(!view.isSelected()) {
+			view.changeBackground("#F2DDDC");
+		}
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(!view.isSelected()) {
+			view.changeBackground("#F9F7F1");
+		}
 	}
 }

@@ -24,29 +24,29 @@ public class ComponentFile extends JPanel {
     // Attributes
     private FileInformation fileInformation;
     private boolean isSelected;
-    //Component
+
+    // Components
     private JLabel lbFileName;
-    
     private JPopupMenu popupMenu;
-   	private ComponentFileController controller;
-   	private HomePageController parentController;
+    private ComponentFileController controller;
+    private HomePageController parentController;
 
     // Constructor
-    public ComponentFile(FileInformation fileInformation, HomePage parentView,  HomePageController parentController) {
+    public ComponentFile(FileInformation fileInformation, HomePage parentView, HomePageController parentController) {
         this.fileInformation = fileInformation;
         this.isSelected = false;
         this.parentController = parentController;
         this.controller = new ComponentFileController(this, parentView, parentController);
         init();
     }
-    
+
     private void init() {
         // JPanel setup
         this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         this.setMinimumSize(new Dimension(0, 60));
         this.setPreferredSize(new Dimension(Integer.MAX_VALUE, 60));
-        this.setBackground(Color.decode("#F2DDDC"));
-        
+        this.setBackground(Color.decode("#F9F7F1"));
+
         this.setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.WHITE, 1));
 
@@ -55,30 +55,41 @@ public class ComponentFile extends JPanel {
         detailsPanel.setLayout(new GridLayout(2, 1)); // Hiển thị 2 dòng
         detailsPanel.setOpaque(false);
 
-        // File name label
+        // File/Directory name label
         String displayText = fileInformation.getName();
         if (displayText.length() > 50) { // Giới hạn ký tự hiển thị
             displayText = displayText.substring(0, 50) + "...";
         }
         lbFileName = new JLabel(displayText);
-        lbFileName.setFont(new Font("Arial", Font.BOLD, 14));
+
+        // Kiểm tra file hay directory để set font
+        if (fileInformation.isFile()) {
+            lbFileName.setFont(new Font("Arial", Font.PLAIN, 14));
+            lbFileName.setForeground(Color.decode("#8333E9"));
+        } else {
+            lbFileName.setFont(new Font("Arial", Font.BOLD, 14)); 
+            lbFileName.setForeground(Color.decode("#8333E9"));
+        }
         detailsPanel.add(lbFileName);
-        
-        if(fileInformation.isFile()) {
-        	// Last modified and size labels
+
+        // Nếu là file, hiển thị lastModified và size
+        if (fileInformation.isFile()) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JLabel lbLastModified = new JLabel("Last Modified: " + dateFormat.format(fileInformation.getLastModified()));
             JLabel lbSize = new JLabel("Size: " + formatSize(fileInformation.getSize()));
             lbLastModified.setFont(new Font("Arial", Font.PLAIN, 12));
             lbSize.setFont(new Font("Arial", Font.PLAIN, 12));
+            lbLastModified.setForeground(Color.decode("#444746"));
+            lbSize.setForeground(Color.decode("#444746"));
 
-            // Add to panel
+            // Add to sub-panel
             JPanel subDetailsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             subDetailsPanel.setOpaque(false);
             subDetailsPanel.add(lbLastModified);
             subDetailsPanel.add(lbSize);
             detailsPanel.add(subDetailsPanel);
         }
+
         // Add details panel to main panel
         this.add(detailsPanel, BorderLayout.CENTER);
 
@@ -88,9 +99,6 @@ public class ComponentFile extends JPanel {
         // Add mouse listener
         this.addMouseListener(controller);
     }
-
-
-
 
     // Format size to human-readable format
     private String formatSize(long size) {
@@ -104,7 +112,7 @@ public class ComponentFile extends JPanel {
             return String.format("%.2f GB", size / (1024.0 * 1024.0 * 1024.0));
         }
     }
-    
+
     // Create context menu
     private void createPopupMenu() {
         popupMenu = new JPopupMenu();
@@ -129,14 +137,18 @@ public class ComponentFile extends JPanel {
 
     public void setSelected(boolean isSelected) {
         this.isSelected = isSelected;
-        setBackground(isSelected ? Color.decode("#F6BCBA") : Color.decode("#F2DDDC")); // Cập nhật màu nền
+        setBackground(isSelected ? Color.decode("#F6BCBA") : Color.decode("#F9F7F1")); // Cập nhật màu nền
     }
 
     public boolean isSelected() {
         return isSelected;
     }
-    
+
     public void showPopupMenu(int x, int y) {
-    	popupMenu.show(this, x, y);
+        popupMenu.show(this, x, y);
+    }
+    
+    public void changeBackground(String colorCode) {
+    	this.setBackground(Color.decode(colorCode));
     }
 }

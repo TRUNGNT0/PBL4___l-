@@ -1,5 +1,6 @@
 package client.view;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -36,6 +37,7 @@ public class SettingPage extends JDialog {
         setSize(853, 480);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        this.setBackground(Color.decode("#F2DDDC"));
         setModal(true); // Đặt chế độ modal để ngăn tương tác với cửa sổ khác
 
         // Tạo label, text field và button
@@ -46,6 +48,7 @@ public class SettingPage extends JDialog {
 
         // Panel để tổ chức các thành phần
         JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Color.decode("#F2DDDC"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Khoảng cách giữa các thành phần
 

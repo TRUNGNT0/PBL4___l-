@@ -44,17 +44,17 @@ public class HomePage extends JFrame {
         setLocationRelativeTo(null);
         
         // Tiêu đề
-        JLabel title = new JLabel("Ứng dụng quản lý upload và dowload file", SwingConstants.CENTER);
+        JLabel title = new JLabel("REMOVE FOLDER", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 24));
-        title.setForeground(Color.WHITE);
+        title.setForeground(Color.decode("#8333E9"));
         title.setOpaque(true);
-        title.setBackground(Color.decode("#8E44AD"));
+        title.setBackground(Color.decode("#F2DDDC"));
         add(title, BorderLayout.NORTH);
 
         // File list panel
         fileListPanel = new JPanel();
         fileListPanel.setLayout(new BoxLayout(fileListPanel, BoxLayout.Y_AXIS));
-        fileListPanel.setBackground(Color.decode("#F4E7F8"));
+        fileListPanel.setBackground(Color.decode("#F9F7F1"));
 
         scrollPane = new JScrollPane(fileListPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -63,8 +63,9 @@ public class HomePage extends JFrame {
         // Menu panel
         menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.setBackground(Color.decode("#E3AADD"));
+        menuPanel.setBackground(Color.decode("#F2DDDC"));
         add(menuPanel, BorderLayout.WEST);
+        menuPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
         // Menu buttons
         String[] menuItems = {"UpLoad", "Load", "New Directory", "DownLoad", "Delete", "Back", "Setting"};
@@ -72,21 +73,27 @@ public class HomePage extends JFrame {
             JButton button = new JButton(item);
             button.setAlignmentX(Component.CENTER_ALIGNMENT);
             button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-            button.setBackground(Color.decode("#9B59B6"));
-            button.setForeground(Color.WHITE);
-            button.setFont(new Font("Arial", Font.PLAIN, 16));
-            button.setFocusPainted(false);
-            button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            button.setBackground(Color.decode("#F2DDDC"));
+            button.setForeground(Color.decode("#8333E9"));
+            button.setFont(new Font("Arial", Font.PLAIN, 14));
+            button.setFocusPainted(false);	// Tắt hiệu ứng 3D focus
+            button.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
+            button.setBorderPainted(false);	// Tắt viền 3D khi nhấn
+            button.setContentAreaFilled(true); // Tắt hiệu ứng nổi của nút khi nhấn
+            
+            button.setPressedIcon(null); // Loại bỏ hình ảnh khi nút bị nhấn
+            button.setRolloverEnabled(true); // Kích hoạt hiệu ứng khi chuột hover
             button.addActionListener(controller);
 
             // Thêm hiệu ứng hover
             button.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    button.setBackground(Color.decode("#8E44AD"));
+                    button.setBackground(Color.decode("#F6BCBA"));
                 }
 
                 public void mouseExited(java.awt.event.MouseEvent evt) {
-                    button.setBackground(Color.decode("#9B59B6"));
+                	button.setBackground(Color.decode("#F2DDDC"));
+                    button.setForeground(Color.decode("#8333E9"));
                 }
             });
 
@@ -176,3 +183,5 @@ public class HomePage extends JFrame {
     
     
 }
+
+
