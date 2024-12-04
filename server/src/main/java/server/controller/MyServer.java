@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class C_MyServer {
+public class MyServer {
     private int port;
     private ServerSocket serverSocket;
     private static String homeDirectoryPath;
@@ -14,7 +14,7 @@ public class C_MyServer {
         return homeDirectoryPath;
     }
 
-    public C_MyServer(int port) {
+    public MyServer(int port) {
         this.port = port;
     }
 
@@ -30,7 +30,7 @@ public class C_MyServer {
                 System.out.println("Kết nối từ: " + socket.getInetAddress());
 
                 // Khởi tạo C_ClientHandler và chạy trên một thread mới
-                C_ClientHandler clientHandler = new C_ClientHandler(socket, homeDirectoryPath);
+                ClientHandler clientHandler = new ClientHandler(socket);
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {

@@ -22,7 +22,6 @@ public class JDBCUtil {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return connection;
     }
 
@@ -49,17 +48,5 @@ public class JDBCUtil {
             }
         }
     }
-
-    // Phương thức main để kiểm tra kết nối
-//    public static void main(String[] args) {
-//        Connection connection = JDBCUtil.getConnection();
-//        if (connection != null) {
-//            System.out.println("Kết nối thành công: " + connection);
-//            JDBCUtil.printInfo(connection);
-//            JDBCUtil.closeConnection(connection);
-//        } else {
-//            System.out.println("Kết nối thất bại!");
-//        }
-//    }
 }
 	

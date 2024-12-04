@@ -3,6 +3,8 @@ package client.model.BO;
 import java.io.*;
 import java.util.List;
 
+import client.model.Bean.FileInformation;
+
 public class FileDownloader {
 	private String downLoadDirectoryPath;
 	
@@ -11,7 +13,11 @@ public class FileDownloader {
         downLoadDirectoryPath = path;
     }
     
-    private String getDownLoadDirectoryPathFromFile() {
+    public String getDownLoadDirectoryPath() {
+		return downLoadDirectoryPath;
+	}
+
+	private String getDownLoadDirectoryPathFromFile() {
     	String path = null;
     	File f = new File("text.txt");
     	if (!f.exists()) {
@@ -58,57 +64,35 @@ public class FileDownloader {
     
     public void setDownLoad(String path) {
     	downLoadDirectoryPath = path;
+    	setDownLoadDirectoryPathToFile();
     }
-
-    public void downloadFiles(String currentDirectoryPath, List<String> fileList, String downloadDirectory, DataInputStream dis, DataOutputStream dos) {
-    	if(downloadDirectory.equals("OKE")) {
-    		downloadDirectory = downLoadDirectoryPath;
-    	}
+    public void downloadFile(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos) {
         try {
             dos.writeUTF(currentDirectoryPath); // Gửi đường dẫn hiện tại
-            sendFileNameListToServer(fileList, dos);
+            fileInformation.sendFileInformation(dos);
+            fileInformation.receiveFileInformation(dis);
+            long fileSize = fileInformation.getSize(); // Nhận kích thước file
+            File file = new File(downLoadDirectoryPath, fileInformation.getName());
 
-            for (String fileName : fileList) {
-                long fileSize = dis.readLong(); // Nhận kích thước file
-                File file = new File(downloadDirectory, fileName);
+            // Tạo thư mục nếu chưa tồn tại
+            file.getParentFile().mkdirs(); 
 
-                // Tạo thư mục nếu chưa tồn tại
-                file.getParentFile().mkdirs(); 
+            // Ghi dữ liệu file vào ổ đĩa
+            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
+                byte[] buffer = new byte[4096];
+                long totalRead = 0;
+                int bytesRead;
 
-                // Ghi dữ liệu file vào ổ đĩa
-                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
-                    byte[] buffer = new byte[4096];
-                    long totalRead = 0;
-                    int bytesRead;
-
-                    while (totalRead < fileSize && (bytesRead = dis.read(buffer)) != -1) {
-                        bos.write(buffer, 0, bytesRead);
-                        totalRead += bytesRead;
-                    }
-                    bos.flush();
-                    try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+                while (totalRead < fileSize && (bytesRead = dis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                    totalRead += bytesRead;
                 }
-                System.out.println("Đã tải file: " + fileName + " về " + downloadDirectory);
+                bos.flush();
             }
+                System.out.println("Đã tải file: " + fileInformation.getName() + " về " + downLoadDirectoryPath);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void sendFileNameListToServer(List<String> fileList, DataOutputStream dos) {
-        try {
-            dos.writeInt(fileList.size());
-            for (String fileName : fileList) {
-                dos.writeUTF(fileName);
-            }
-            dos.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

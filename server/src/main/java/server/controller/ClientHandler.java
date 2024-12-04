@@ -6,31 +6,31 @@ import java.io.IOException;
 import java.net.Socket;
 
 import server.model.BO.LoginHandler;
-import server.model.BO.M_DirectoryHandler;
-import server.model.BO.M_FileDeleteHandler;
-import server.model.BO.M_FileDownloadHandler;
-import server.model.BO.M_FileUploadHandler;
+import server.model.BO.DirectoryHandler;
+import server.model.BO.DeleteHandler;
+import server.model.BO.DownloadHandler;
+import server.model.BO.UploadHandler;
 
-public class C_ClientHandler implements Runnable {
+public class ClientHandler implements Runnable {
     private Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
 
     // Các handler được khởi tạo trong lớp
-    private M_FileUploadHandler uploadHandler;
-    private M_FileDownloadHandler downloadHandler;
-    private M_FileDeleteHandler deleteHandler;
-    private M_DirectoryHandler directoryHandler;
+    private UploadHandler uploadHandler;
+    private DownloadHandler downloadHandler;
+    private DeleteHandler deleteHandler;
+    private DirectoryHandler directoryHandler;
 	private LoginHandler login;
 
-    public C_ClientHandler(Socket socket, String homeDirectoryPath) {
+    public ClientHandler(Socket socket) {
         this.socket = socket;
 
         // Khởi tạo các handler
-        this.uploadHandler = new M_FileUploadHandler(homeDirectoryPath);
-        this.downloadHandler = new M_FileDownloadHandler(homeDirectoryPath);
-        this.deleteHandler = new M_FileDeleteHandler(homeDirectoryPath);
-        this.directoryHandler = new M_DirectoryHandler(homeDirectoryPath);
+        this.uploadHandler = new UploadHandler();
+        this.downloadHandler = new DownloadHandler();
+        this.deleteHandler = new DeleteHandler();
+        this.directoryHandler = new DirectoryHandler();
 		this.login= new LoginHandler();
 
         try {
@@ -43,8 +43,8 @@ public class C_ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try {
-            while (true) {
+    	while (true) {
+            try {
                 String request = dis.readUTF(); // Nhận yêu cầu từ client
                 switch (request) {
 					case "LOGIN":
@@ -70,12 +70,14 @@ public class C_ClientHandler implements Runnable {
                         System.out.println("Unknown request: " + request);
                         break;
                 }
+            } catch (IOException e) {
+                System.out.println("Client disconnected: " + e.getMessage());
+                closeConnections();
+                break;
+            } finally {
+                closeConnections();
             }
-        } catch (IOException e) {
-            System.out.println("Client disconnected: " + e.getMessage());
-        } finally {
-            closeConnections();
-        }
+    	}
     }
 
     // Xử lý từng loại yêu cầu

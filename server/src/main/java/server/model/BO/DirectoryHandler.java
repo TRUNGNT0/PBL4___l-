@@ -5,16 +5,14 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+import server.controller.MyServer;
 import server.model.Bean.FileInformation;
 
-public class M_DirectoryHandler extends M_ServerFileHandler {
-    public M_DirectoryHandler(String homeDirectoryPath) {
-        super(homeDirectoryPath);
-    }
-
-    public void loadHandler(DataInputStream dis, DataOutputStream dos) {
+public class DirectoryHandler {
+	
+	public void loadHandler(DataInputStream dis, DataOutputStream dos) {
         try {
-            File directory = new File(this.homeDirectoryPath + dis.readUTF());
+            File directory = new File(MyServer.getHomeDirectoryPath() + dis.readUTF());
             File[] files = directory.isDirectory() ? directory.listFiles() : null;
 
             if (files != null) {
@@ -22,7 +20,6 @@ public class M_DirectoryHandler extends M_ServerFileHandler {
                 for (File file : files) {
                 	FileInformation fileInformation = new FileInformation(file.getName(), file.lastModified(), file.length(), file.isFile());
                 	fileInformation.sendFileInformation(dos);
-                    //dos.writeUTF(file.getName());
                 }
             } else {
                 dos.writeInt(0);
@@ -30,5 +27,10 @@ public class M_DirectoryHandler extends M_ServerFileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+	
+	public boolean createFolderIfNotExists(String folderPath) {
+        File folder = new File(MyServer.getHomeDirectoryPath() + folderPath);
+        return folder.exists() || folder.mkdirs();
     }
 }

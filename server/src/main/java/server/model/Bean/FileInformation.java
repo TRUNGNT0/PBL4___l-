@@ -10,6 +10,10 @@ public class FileInformation {
 	private long size;		//Byte
 	private boolean isFile;
 	
+	public FileInformation() {
+		
+	}
+	
 	public FileInformation(String name, long lastModified, long size, boolean isFile) {
 		this.name = name;
 		this.lastModified = lastModified;

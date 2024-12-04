@@ -26,8 +26,4 @@ public class M_ServerFileHandler {
         return fileList;
     }
 
-    public boolean createFolderIfNotExists(String folderPath) {
-        File folder = new File(this.homeDirectoryPath + folderPath);
-        return folder.exists() || folder.mkdirs();
-    }
 }

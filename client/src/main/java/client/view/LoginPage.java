@@ -1,12 +1,10 @@
- package client.view;
+package client.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,9 +14,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import client.controller.C_MyClient;
+import client.controller.LoginPageController;
 
-public class V_Login extends JFrame {
+public class LoginPage extends JFrame {
     private static final long serialVersionUID = 1L;
 
     // Components
@@ -29,12 +27,13 @@ public class V_Login extends JFrame {
     private JButton btn_Login;
 
     // Controller
-    private C_MyClient controller;
+    private LoginPageController controller;
+    
 
     // Constructor
-    public V_Login() {
+    public LoginPage(LoginPageController controller) {
+    	this.controller = controller;
         init();
-        controller = C_MyClient.getInstance("localhost", 8888);
     }
 
     // Initialize components and layout
@@ -43,6 +42,7 @@ public class V_Login extends JFrame {
         this.setTitle("Đăng nhập");
         this.setSize(853, 480);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout());
         this.getContentPane().setBackground(Color.decode("#F2DDDC"));
 
@@ -84,12 +84,7 @@ public class V_Login extends JFrame {
 
         btn_Login = new JButton("Đăng nhập");
         btn_Login.setPreferredSize(new Dimension(150, 40)); // Optional, for consistent button size
-        btn_Login.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleLogin(); // Handle login when button is clicked
-            }
-        });
+        btn_Login.addActionListener(controller);
         this.getRootPane().setDefaultButton(btn_Login);
         southPanel.add(btn_Login);
 
@@ -97,36 +92,16 @@ public class V_Login extends JFrame {
         this.add(centerPanel, BorderLayout.CENTER);
         this.add(southPanel, BorderLayout.SOUTH);
     }
-
-    // Handle login process
-    private void handleLogin() {
-    	
-    	
-        String username = tf_UserName.getText().trim();
-        String password = new String(tf_Password.getPassword());
-
-        if (username.isEmpty() || password.isEmpty()) {
-            // Nếu thiếu trường nào thì hiển thị thông báo lỗi
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } else {
-            // Nếu tất cả trường đều có dữ liệu, gửi dữ liệu cho controller để xử lý
-            boolean success = controller.login(username, password);
-            if (success) {
-                // Đăng nhập thành công, hiển thị V_TrangChu
-                JOptionPane.showMessageDialog(this, "Đăng nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                V_TrangChu trangChu = new V_TrangChu(); // Tạo đối tượng V_TrangChu
-                trangChu.setVisible(true); // Hiển thị V_TrangChu
-                this.setVisible(false); // Ẩn V_Login
-                this.dispose(); // Giải phóng bộ nhớ của V_Login
-            } else {
-                JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không chính xác!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        }
+    
+    public void showError(String text) {
+    	JOptionPane.showMessageDialog(this, text, "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
-
-    // Main method for testing
-//    public static void main(String[] args) {
-//        V_Login loginFrame = new V_Login();
-//        loginFrame.setVisible(true);
-//    }
+    
+    public String getUsername() {
+    	return tf_UserName.getText().trim();
+    }
+    
+    public String getPassword() {
+    	return new String(tf_Password.getPassword());
+    }
 }

@@ -5,31 +5,40 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class NetworkHandler {
+public class NetworkController {
     private String serverAddress;
     private int serverPort;
     private Socket socket;
     private DataOutputStream dos;
     private DataInputStream dis;
 
-    public NetworkHandler(String serverAddress, int serverPort) {
+    public NetworkController(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
+    }
+
+    public void connect() {
+        try {
+        	socket = new Socket(serverAddress, serverPort);
+			dos = new DataOutputStream(socket.getOutputStream());
+			dis = new DataInputStream(socket.getInputStream());
+	        System.out.println("Kết nối đến server " + serverAddress + " qua cổng " + serverPort);
+        } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    public void disconnect() {
+    	try {
+    		if (dos != null) dos.close();
+            if (dis != null) dis.close();
+            if (socket != null) socket.close();
+            System.out.println("Đã ngắt kết nối với server.");
+		} catch (IOException e) {
+			// TODO: handle exception
+		}
         
-    }
-
-    public void connect() throws IOException {
-        socket = new Socket(serverAddress, serverPort);
-        dos = new DataOutputStream(socket.getOutputStream());
-        dis = new DataInputStream(socket.getInputStream());
-        System.out.println("Kết nối đến server " + serverAddress + " qua cổng " + serverPort);
-    }
-
-    public void disconnect() throws IOException {
-        if (dos != null) dos.close();
-        if (dis != null) dis.close();
-        if (socket != null) socket.close();
-        System.out.println("Đã ngắt kết nối với server.");
     }
 
     public void sendCommand(String command) {

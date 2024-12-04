@@ -14,7 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import server.controller.C_MyServer;
+import server.controller.MyServer;
 
 public class V_Setup extends JFrame implements ActionListener{
 
@@ -34,6 +34,7 @@ public class V_Setup extends JFrame implements ActionListener{
         this.setTitle("Server Setup");
         this.setSize(600, 400);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);;
         this.setLayout(new BorderLayout());
         Color backgroundColor = Color.decode("#CFE1B9");
         this.getContentPane().setBackground(backgroundColor);
@@ -88,7 +89,7 @@ public class V_Setup extends JFrame implements ActionListener{
 	        break;
 	        
 	    case "Start":
-	    	C_MyServer server = new C_MyServer(8888);
+	    	MyServer server = new MyServer(8888);
 	        server.startServer(tf_HomeDirectoryPath.getText());
 	        break;
 	        

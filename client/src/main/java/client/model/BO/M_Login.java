@@ -32,7 +32,6 @@ public class M_Login {
         }
     }
 
-    // Getter cho username
     public String getUsername() {
         return username;
     }

@@ -45,7 +45,6 @@ public class FileInformation {
 		}
 	}
 	
-	
 	@Override
 	public String toString() {
 		return "FileInformation [name=" + name + ", lastModified=" + lastModified + ", size=" + size + ", isFile="

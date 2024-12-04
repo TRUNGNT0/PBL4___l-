@@ -5,19 +5,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import client.model.Bean.FileInformation;
+
 public class FileUploader {
 
+	
+	
     public FileUploader() {
         
     }
+    
+    
 
     public void uploadFile(String currentDirectoryPath, String filePath, DataOutputStream dos) {
         File file = new File(filePath);
+        FileInformation fileInformation = new FileInformation(file.getName(), file.lastModified(), file.length(), file.isFile());
         try (FileInputStream fis = new FileInputStream(file)) {
-            // Gửi đường dẫn hiện tại, tên file và kích thước file
+            // Gửi đường dẫn hiện tại, và thông tin file
             dos.writeUTF(currentDirectoryPath);
-            dos.writeUTF(file.getName());
-            dos.writeLong(file.length());
+            fileInformation.sendFileInformation(dos);
 
             // Gửi dữ liệu file
             byte[] buffer = new byte[4096];
