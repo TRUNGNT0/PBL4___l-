@@ -29,8 +29,20 @@ public class DirectoryHandler {
         }
     }
 	
-	public boolean createFolderIfNotExists(String folderPath) {
-        File folder = new File(MyServer.getHomeDirectoryPath() + folderPath);
-        return folder.exists() || folder.mkdirs();
+	public void createFolderIfNotExists(DataInputStream dis, DataOutputStream dos) {
+		try {
+			String currentDirectoryPath = dis.readUTF();
+			FileInformation fileInformation = new FileInformation();
+			fileInformation.receiveFileInformation(dis);
+	        File folder = new File(MyServer.getHomeDirectoryPath() + currentDirectoryPath + "\\" + fileInformation.getName());
+	        if(folder.exists()) {
+					dos.writeBoolean(false);
+	        } else {
+					dos.writeBoolean(folder.mkdirs());
+	        }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }

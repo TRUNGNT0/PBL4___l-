@@ -50,8 +50,13 @@ public class ClientHandler implements Runnable {
 					case "LOGIN":
                         handleLogin();
                         break;
+                        
                     case "UP_LOAD":
                         handleUpload();
+                        break;
+                        
+                    case "NEW_DIRECTORY":
+                    	handleNewDirectory();
                         break;
 
                     case "LOAD":
@@ -83,6 +88,10 @@ public class ClientHandler implements Runnable {
     // Xử lý từng loại yêu cầu
     private void handleUpload() {
         uploadHandler.upLoadHandler(dis);
+    }
+    
+    private void handleNewDirectory() {
+    	directoryHandler.createFolderIfNotExists(dis, dos);
     }
 
     private void handleLoad() {

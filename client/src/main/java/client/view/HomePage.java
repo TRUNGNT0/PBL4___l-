@@ -80,9 +80,6 @@ public class HomePage extends JFrame {
             button.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
             button.setBorderPainted(false);	// Tắt viền 3D khi nhấn
             button.setContentAreaFilled(true); // Tắt hiệu ứng nổi của nút khi nhấn
-            
-            button.setPressedIcon(null); // Loại bỏ hình ảnh khi nút bị nhấn
-            button.setRolloverEnabled(true); // Kích hoạt hiệu ứng khi chuột hover
             button.addActionListener(controller);
 
             // Thêm hiệu ứng hover
@@ -181,6 +178,26 @@ public class HomePage extends JFrame {
     	return selectedFile;
     }
     
+    public String showInputDialog(String title) {
+        // Tạo JTextField để nhập liệu
+        JTextField textField = new JTextField();
+
+        // Hiển thị cửa sổ nhập liệu
+        int option = JOptionPane.showConfirmDialog(
+            null,
+            textField,
+            title,
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+        );
+
+        // Kiểm tra nút OK
+        if (option == JOptionPane.OK_OPTION) {
+            return textField.getText(); // Trả về chuỗi nhập
+        } else {
+            return ""; // Trả về chuỗi rỗng
+        }
+    }
     
 }
 

@@ -94,5 +94,8 @@ public class FileDownloader {
             e.printStackTrace();
         }
     }
-
+    
+    public void DownLoadFilesWithRAR(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos) {
+    	
+    }
 }

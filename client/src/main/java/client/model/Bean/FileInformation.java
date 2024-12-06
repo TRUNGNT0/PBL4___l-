@@ -13,7 +13,10 @@ public class FileInformation {
 	private boolean isFile;
 	
 	public FileInformation() {
-		
+		this.name = "";
+		this.lastModified = 0;
+		this.size = 0;
+		this.isFile = false;
 	}
 	
 	public FileInformation(String name, long lastModified, long size, boolean isFile) {

@@ -44,6 +44,10 @@ public class HomePageController implements ActionListener{
                 btn_Load_Click();;
                 break;
                 
+            case "New Directory":
+                btn_NewDirectory_Click();
+                break;   
+                
             case "DownLoad":
                 btn_Download_Click();
                 break;
@@ -102,6 +106,11 @@ public class HomePageController implements ActionListener{
             	fileDownloader.downloadFile(directoryHandler.getCurrentDirectoryPath(), listFile.getFirst(), 
             			networkController.getInputStream(), networkController.getOutputStream());
             	networkController.disconnect();
+    		} else if(listFile.size() > 1) {
+    			networkController.connect();
+            	networkController.sendCommand("DOWN_LOAD_2");
+            	
+            	networkController.disconnect();
     		}
     	}
     }
@@ -137,5 +146,22 @@ public class HomePageController implements ActionListener{
 		}
 	}
 	
+	public void btn_NewDirectory_Click() {
+		String newDirectory = view.showInputDialog("Nhập vào tên Directory muốn tạo");
+		if(!newDirectory.isEmpty()) {
+			FileInformation fileInformation = new FileInformation();
+			fileInformation.setName(newDirectory);
+			networkController.connect();
+	        networkController.sendCommand("NEW_DIRECTORY");
+	        boolean success = directoryHandler.createNewDirectory(fileInformation, 
+	        		networkController.getInputStream(), networkController.getOutputStream());
+	        networkController.disconnect();
+	        if(success) {
+	        	btn_Load_Click();
+	        } else {
+	        	view.showError("Tên đã tồn tại hoặc gặp lỗi khi tạo thư mục");
+	        }
+		}
+	}
 	
 }

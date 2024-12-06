@@ -56,4 +56,16 @@ public class DirectoryHandler {
             return fileInformationList;
         }
     }
+    
+    public boolean createNewDirectory(FileInformation file, DataInputStream dis, DataOutputStream dos) {
+    	try {
+			dos.writeUTF(currentDirectoryPath);
+			file.sendFileInformation(dos);
+			boolean success = dis.readBoolean();
+			return success;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+    }
 }
