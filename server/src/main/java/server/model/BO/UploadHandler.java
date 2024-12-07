@@ -2,6 +2,7 @@ package server.model.BO;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -26,9 +27,9 @@ public class UploadHandler {
             }
             bos.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
     }
+    
+    
 }

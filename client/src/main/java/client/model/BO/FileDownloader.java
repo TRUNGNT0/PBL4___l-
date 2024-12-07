@@ -66,6 +66,7 @@ public class FileDownloader {
     	downLoadDirectoryPath = path;
     	setDownLoadDirectoryPathToFile();
     }
+    
     public void downloadFile(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos) {
         try {
             dos.writeUTF(currentDirectoryPath); // Gửi đường dẫn hiện tại
@@ -95,7 +96,41 @@ public class FileDownloader {
         }
     }
     
-    public void DownLoadFilesWithRAR(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos) {
-    	
+    public void downloadFileWithZip(String currentDirectoryPath, List<FileInformation> fileInformationList, DataInputStream dis, DataOutputStream dos) {
+        try {
+        	dos.writeUTF(currentDirectoryPath);
+        	dos.writeInt(fileInformationList.size());
+        	for(FileInformation fileInfor : fileInformationList) {
+        		fileInfor.sendFileInformation(dos);
+        	}
+        	
+        	
+            // Nhận tên file ZIP từ server
+            FileInformation zipFileInformation = new FileInformation();
+            zipFileInformation.receiveFileInformation(dis);
+
+            // Tạo file ZIP đích
+            File zipFile = new File(downLoadDirectoryPath, zipFileInformation.getName() + ".zip");
+
+            // Tạo thư mục lưu trữ nếu chưa tồn tại
+            zipFile.getParentFile().mkdirs();
+
+            // Ghi dữ liệu ZIP vào file
+            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFile))) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = dis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
+                }
+
+                bos.flush();
+            }
+
+            System.out.println("Đã tải file ZIP về: " + zipFile.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Lỗi khi tải file ZIP: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

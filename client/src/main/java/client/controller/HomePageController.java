@@ -2,6 +2,7 @@ package client.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.List;
 
 import client.model.BO.DirectoryHandler;
@@ -72,19 +73,18 @@ public class HomePageController implements ActionListener{
 	}
     
     private void btn_Upload_Click() {
-    	String path = view.chooseFile();
-    	if(!path.isEmpty()) {
-    		upLoadFile(path);
-        	btn_Load_Click();
+    	String path = view.chooseFolder();
+    	File file = new File(path);
+    	if(!path.isEmpty() && file.isFile()) {
+    		networkController.connect();
+        	networkController.sendCommand("UP_LOAD");
+        	fileUploader.uploadFile(directoryHandler.getCurrentDirectoryPath(), path,
+        			networkController.getOutputStream());
+        	networkController.disconnect();	
+    	} else if (!path.isEmpty() && file.isDirectory()) {
+    		
     	}
-    }
-    
-    private void upLoadFile(String path) {
-    	networkController.connect();
-    	networkController.sendCommand("UP_LOAD");
-    	fileUploader.uploadFile(directoryHandler.getCurrentDirectoryPath(), path,
-    			networkController.getOutputStream());
-    	networkController.disconnect();
+    	btn_Load_Click();
     }
     
     private void btn_Load_Click() {
@@ -100,16 +100,17 @@ public class HomePageController implements ActionListener{
     		fileDownloader.setDownLoad(view.chooseFolder());
     	} else {
     		List<FileInformation> listFile = view.getselectedFile();
-    		if(listFile.size() == 1) {
+    		if(listFile.size() == 1 && listFile.getFirst().isFile()) {
     			networkController.connect();
             	networkController.sendCommand("DOWN_LOAD");
             	fileDownloader.downloadFile(directoryHandler.getCurrentDirectoryPath(), listFile.getFirst(), 
             			networkController.getInputStream(), networkController.getOutputStream());
             	networkController.disconnect();
-    		} else if(listFile.size() > 1) {
+    		} else if(listFile.size() >= 1) {
     			networkController.connect();
             	networkController.sendCommand("DOWN_LOAD_2");
-            	
+            	fileDownloader.downloadFileWithZip(directoryHandler.getCurrentDirectoryPath(), listFile,
+            			networkController.getInputStream(), networkController.getOutputStream());
             	networkController.disconnect();
     		}
     	}

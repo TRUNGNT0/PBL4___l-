@@ -55,6 +55,10 @@ public class ClientHandler implements Runnable {
                         handleUpload();
                         break;
                         
+                    case "UP_LOAD_2":
+                        handleUpload2();
+                        break;
+                        
                     case "NEW_DIRECTORY":
                     	handleNewDirectory();
                         break;
@@ -65,6 +69,10 @@ public class ClientHandler implements Runnable {
 
                     case "DOWN_LOAD":
                         handleDownload();
+                        break;
+                        
+                    case "DOWN_LOAD_2":
+                        handleDownload2();
                         break;
 
                     case "DELETE":
@@ -90,6 +98,10 @@ public class ClientHandler implements Runnable {
         uploadHandler.upLoadHandler(dis);
     }
     
+    private void handleUpload2() {
+        
+    }
+    
     private void handleNewDirectory() {
     	directoryHandler.createFolderIfNotExists(dis, dos);
     }
@@ -100,6 +112,10 @@ public class ClientHandler implements Runnable {
 
     private void handleDownload() {
         downloadHandler.downLoadHandler(dis, dos);
+    }
+    
+    private void handleDownload2() {
+    	downloadHandler.downLoadHandlerWithZip(dis, dos);
     }
 
     private void handleDelete() {
