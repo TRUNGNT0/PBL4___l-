@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import client.model.BO.M_Login;
 import client.view.HomePage;
 import client.view.LoginPage;
+import client.controller.SignUpPageController;;
 
 public class LoginPageController implements ActionListener{
 	private LoginPage view;
@@ -14,7 +15,7 @@ public class LoginPageController implements ActionListener{
 	
 	public LoginPageController() {
 		view = new LoginPage(this);
-		this.networkController = new NetworkController("localhost", 8888);
+		this.networkController = new NetworkController("116.105.208.83", 8888);
 		this.loginHandler = new M_Login();
 		
 		view.setVisible(true);
@@ -23,7 +24,12 @@ public class LoginPageController implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		btn_Login_Click();
+		String command = e.getActionCommand();
+		if ("Login".equals(command)) {
+			btn_Login_Click();
+		} else if ("Sign up".equals(command)) {
+			btn_SignUp_Click();
+		}
 	}
 	
 	private void btn_Login_Click() {
@@ -32,6 +38,7 @@ public class LoginPageController implements ActionListener{
 		
 		if (username.isEmpty() || password.isEmpty()) {
 			view.showError("Vui lòng nhập đầy đủ thông tin");
+			return;
 		} else {
 			boolean success = login(username, password);
 			if(success) {
@@ -40,9 +47,14 @@ public class LoginPageController implements ActionListener{
                 view.dispose(); // Giải phóng bộ nhớ của V_Login
 			} else {
 				view.showError("Tên đăng nhập hoặc mật khẩu không chính xác");
+				return;
 			}
 		}
     }
+	private void btn_SignUp_Click() {
+		view.setVisible(false); // Ẩn LoginPage
+		new SignUpPageController(networkController); // Tạo controller cho SignUpPage
+	}
 	
 	private boolean login(String username, String password) {
 		networkController.connect();

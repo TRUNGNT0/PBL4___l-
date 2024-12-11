@@ -73,7 +73,7 @@ public class HomePageController implements ActionListener{
 	}
     
     private void btn_Upload_Click() {
-    	String path = view.chooseFolder();
+    	String path = view.chooseFile();
     	File file = new File(path);
     	if(!path.isEmpty() && file.isFile()) {
     		networkController.connect();

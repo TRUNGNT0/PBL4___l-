@@ -5,11 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import server.model.BO.LoginHandler;
-import server.model.BO.DirectoryHandler;
-import server.model.BO.DeleteHandler;
-import server.model.BO.DownloadHandler;
-import server.model.BO.UploadHandler;
+import server.model.BO.*;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
@@ -22,6 +18,8 @@ public class ClientHandler implements Runnable {
     private DeleteHandler deleteHandler;
     private DirectoryHandler directoryHandler;
 	private LoginHandler login;
+    private SignUpHandler SignUp;
+
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -32,6 +30,7 @@ public class ClientHandler implements Runnable {
         this.deleteHandler = new DeleteHandler();
         this.directoryHandler = new DirectoryHandler();
 		this.login= new LoginHandler();
+        this.SignUp= new SignUpHandler();
 
         try {
             dis = new DataInputStream(this.socket.getInputStream());
@@ -78,7 +77,9 @@ public class ClientHandler implements Runnable {
                     case "DELETE":
                         handleDelete();
                         break;
-
+                    case "SIGNUP":
+                        handleSignUp();
+                        break;
                     default:
                         System.out.println("Unknown request: " + request);
                         break;
@@ -102,6 +103,10 @@ public class ClientHandler implements Runnable {
         
     }
     
+    private void handleSignUp() {
+        SignUp.signUp(dis, dos);
+    }
+
     private void handleNewDirectory() {
     	directoryHandler.createFolderIfNotExists(dis, dos);
     }
