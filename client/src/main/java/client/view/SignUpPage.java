@@ -8,7 +8,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,7 +17,7 @@ import javax.swing.JTextField;
 
 import client.controller.SignUpPageController;
 
-public class SignUpPage extends JFrame {
+public class SignUpPage extends JDialog {
     private static final long serialVersionUID = 1L;
 
     // Components
@@ -28,7 +28,6 @@ public class SignUpPage extends JFrame {
     private JPasswordField tf_Password;
     private JPasswordField tf_ConfirmPassword;
     private JButton btn_SignUp;
-    private JButton btn_Back;
 
     // Controller
     private SignUpPageController controller;
@@ -44,14 +43,14 @@ public class SignUpPage extends JFrame {
         // JFrame configuration
         this.setTitle("Đăng ký tài khoản");
         this.setSize(853, 480);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout());
-        this.getContentPane().setBackground(Color.decode("#EDEDED"));
+        this.setBackground(Color.decode("#F2DDDC"));
 
         // Center panel for form layout
         JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.setOpaque(false);
+        centerPanel.setBackground(Color.decode("#F2DDDC"));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -95,18 +94,12 @@ public class SignUpPage extends JFrame {
 
         // South panel for buttons
         JPanel southPanel = new JPanel();
-        southPanel.setOpaque(false);
+        southPanel.setBackground(Color.decode("#F2DDDC"));
 
         btn_SignUp = new JButton("Sign up");
         btn_SignUp.setPreferredSize(new Dimension(150, 40));
         btn_SignUp.addActionListener(controller); // Attach controller
         southPanel.add(btn_SignUp);
-
-        btn_Back = new JButton("Back");
-        btn_Back.setPreferredSize(new Dimension(150, 40));
-        
-        btn_Back.addActionListener(controller); // Gửi về controller để xử lý
-        southPanel.add(btn_Back);
 
         // Add panels to frame
         this.add(centerPanel, BorderLayout.CENTER);

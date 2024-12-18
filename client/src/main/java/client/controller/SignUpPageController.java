@@ -23,8 +23,6 @@ public class SignUpPageController implements ActionListener {
         String command = e.getActionCommand();
         if ("Sign up".equals(command)) {
             btn_SignUp_Click();
-        } else if ("Back".equals(command)) {
-            btn_Back_Click();
         }
     }
 
@@ -37,9 +35,10 @@ public class SignUpPageController implements ActionListener {
         if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             view.showError("Vui lòng nhập đầy đủ thông tin!");
 			return;
-        }
-
-        if (!password.equals(confirmPassword)) {
+        } else if(containsSpecialCharacters(username)) {
+        	view.showError("Username không được chứa \\ / : * ? \" < > |");
+        	return;
+        } else if (!password.equals(confirmPassword)) {
             view.showError("Mật khẩu xác nhận không khớp!");
 			return;
         }
@@ -50,16 +49,22 @@ public class SignUpPageController implements ActionListener {
         networkController.disconnect();
 
         if (success) {
-            view.dispose(); // Đóng SignUpPage
-            new LoginPageController(); // Chuyển về trang đăng nhập
+        	view.showMessage("Đăng kí thành công");
+            view.dispose(); 
         } else {
             view.showError("Đăng ký thất bại, vui lòng thử lại!");
         }
     }
+    
+    public boolean containsSpecialCharacters(String input) {
+        // Định nghĩa các ký tự cần kiểm tra
+        String specialCharacters = "/\\:*?\"<>|";
 
-    // Xử lý sự kiện nút "Quay lại"
-    private void btn_Back_Click() {
-        view.dispose(); // Đóng SignUpPage
-        new LoginPageController(); // Chuyển về trang đăng nhập
+        for (char c : input.toCharArray()) {
+            if (specialCharacters.indexOf(c) >= 0) {
+                return true; 
+            }
+        }
+        return false; 
     }
 }

@@ -4,18 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import client.model.BO.M_Login;
-import client.view.HomePage;
 import client.view.LoginPage;
-import client.controller.SignUpPageController;;
 
 public class LoginPageController implements ActionListener{
 	private LoginPage view;
 	private NetworkController networkController;
 	private M_Login loginHandler;
 	
-	public LoginPageController() {
+	public LoginPageController(NetworkController networkController) {
 		view = new LoginPage(this);
-		this.networkController = new NetworkController("116.105.208.83", 8888);
+		this.networkController = networkController;
 		this.loginHandler = new M_Login();
 		
 		view.setVisible(true);
@@ -52,7 +50,6 @@ public class LoginPageController implements ActionListener{
 		}
     }
 	private void btn_SignUp_Click() {
-		view.setVisible(false); // Ẩn LoginPage
 		new SignUpPageController(networkController); // Tạo controller cho SignUpPage
 	}
 	
