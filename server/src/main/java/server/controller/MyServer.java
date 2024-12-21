@@ -3,19 +3,30 @@ package server.controller;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MyServer {
+	private static final int SERVER_PORT = 8888;
+	private static final int threadPoolSize = 100;
+	
     private int port;
     private ServerSocket serverSocket;
     private static String homeDirectoryPath;
+    
+    
+
+    // Nhóm luồng cố định
+    private ExecutorService executorService;
 
     // Getter để các lớp khác lấy thông tin đường dẫn
     public static String getHomeDirectoryPath() {
         return homeDirectoryPath;
     }
 
-    public MyServer(int port) {
-        this.port = port;
+    public MyServer() {
+        this.port = SERVER_PORT;
+        this.executorService = Executors.newFixedThreadPool(threadPoolSize); // Khởi tạo nhóm luồng cố định
     }
 
     public void startServer(String path) {
@@ -25,13 +36,11 @@ public class MyServer {
             System.out.println("Server đang lắng nghe tại cổng " + port);
 
             while (true) {
-                // Chấp nhận kết nối từ client
                 Socket socket = serverSocket.accept();
                 System.out.println("Kết nối từ: " + socket.getInetAddress());
-
-                // Khởi tạo C_ClientHandler và chạy trên một thread mới
-                ClientHandler clientHandler = new ClientHandler(socket);
-                new Thread(clientHandler).start();
+                
+                // Nộp ClientHandler vào ExecutorService
+                executorService.submit(new ClientHandler(socket));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -44,6 +53,7 @@ public class MyServer {
                     e.printStackTrace();
                 }
             }
+            executorService.shutdown();
         }
     }
 }

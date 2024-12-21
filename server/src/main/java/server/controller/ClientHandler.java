@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 import server.model.BO.*;
 
@@ -24,6 +25,12 @@ public class ClientHandler implements Runnable {
     public ClientHandler(Socket socket) {
         this.socket = socket;
 
+        try {
+			this.socket.setSoTimeout(2000);
+		} catch (SocketException e) {
+			closeConnections();
+			e.printStackTrace();
+		}
         // Khởi tạo các handler
         this.uploadHandler = new UploadHandler();
         this.downloadHandler = new DownloadHandler();
@@ -42,7 +49,7 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-    	while (true) {
+//    	while (true) {
             try {
                 String request = dis.readUTF(); // Nhận yêu cầu từ client
                 switch (request) {
@@ -77,6 +84,7 @@ public class ClientHandler implements Runnable {
                     case "DELETE":
                         handleDelete();
                         break;
+                        
                     case "SIGNUP":
                         handleSignUp();
                         break;
@@ -87,11 +95,11 @@ public class ClientHandler implements Runnable {
             } catch (IOException e) {
                 System.out.println("Client disconnected: " + e.getMessage());
                 closeConnections();
-                break;
+//                break;
             } finally {
                 closeConnections();
             }
-    	}
+//    	}
     }
 
     // Xử lý từng loại yêu cầu

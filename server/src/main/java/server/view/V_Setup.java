@@ -87,9 +87,9 @@ public class V_Setup extends JFrame implements ActionListener{
                 tf_HomeDirectoryPath.setText(selectedDirectory.getAbsolutePath());
             }
 	        break;
-	        
+	         
 	    case "Start":
-	    	MyServer server = new MyServer(8888);
+	    	MyServer server = new MyServer();
 	        server.startServer(tf_HomeDirectoryPath.getText());
 	        break;
 	        
@@ -98,7 +98,4 @@ public class V_Setup extends JFrame implements ActionListener{
 	        break;
 		}
 	}
-	public static void main(String[] args) {
-        new V_Setup();
-    }
 }
