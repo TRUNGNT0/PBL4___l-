@@ -12,6 +12,8 @@ public class ClientHandler implements Runnable {
     private Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
+    
+    private SessionManager sessionManager;
 
     // Các handler được khởi tạo trong lớp
     private UploadHandler uploadHandler;
@@ -22,11 +24,11 @@ public class ClientHandler implements Runnable {
     private SignUpHandler SignUp;
 
 
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, SessionManager sessionManager) {
         this.socket = socket;
-
+        this.sessionManager = sessionManager;
         try {
-			this.socket.setSoTimeout(2000);
+			this.socket.setSoTimeout(5000);
 		} catch (SocketException e) {
 			closeConnections();
 			e.printStackTrace();
@@ -49,57 +51,76 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-//    	while (true) {
-            try {
-                String request = dis.readUTF(); // Nhận yêu cầu từ client
-                switch (request) {
-					case "LOGIN":
-                        handleLogin();
-                        break;
-                        
-                    case "UP_LOAD":
-                        handleUpload();
-                        break;
-                        
-                    case "UP_LOAD_2":
-                        handleUpload2();
-                        break;
-                        
-                    case "NEW_DIRECTORY":
-                    	handleNewDirectory();
-                        break;
+    	boolean isLogin = false;
+    	try {
+        	String request1 = dis.readUTF();
+        	switch (request1) {
+			case "LOGIN":
+                handleLogin();
+                return;
+                
+			case "SIGNUP":
+                handleSignUp();
+                return;
+                
+			case "AUTHENTIC_TOKEN":
+                isLogin = handleAuthenticToken();
+                if(isLogin) {
+                	break;
+                } else return;
+			default:
+                System.out.println("Unknown request: " + request1);
+                break;
+        	}
+        	
+        	String request = dis.readUTF(); // Nhận yêu cầu từ client
+            switch (request) {
+				case "LOGIN":
+                    handleLogin();
+                    break;
+                    
+                case "UP_LOAD":
+                    handleUpload();
+                    break;
+                    
+                case "UP_LOAD_2":
+                    handleUpload2();
+                    break;
+                    
+                case "NEW_DIRECTORY":
+                	handleNewDirectory();
+                    break;
 
-                    case "LOAD":
-                        handleLoad();
-                        break;
+                case "LOAD":
+                    handleLoad();
+                    break;
 
-                    case "DOWN_LOAD":
-                        handleDownload();
-                        break;
-                        
-                    case "DOWN_LOAD_2":
-                        handleDownload2();
-                        break;
+                case "DOWN_LOAD":
+                    handleDownload();
+                    break;
+                    
+                case "DOWN_LOAD_2":
+                    handleDownload2();
+                    break;
 
-                    case "DELETE":
-                        handleDelete();
-                        break;
-                        
-                    case "SIGNUP":
-                        handleSignUp();
-                        break;
-                    default:
-                        System.out.println("Unknown request: " + request);
-                        break;
-                }
-            } catch (IOException e) {
-                System.out.println("Client disconnected: " + e.getMessage());
-                closeConnections();
-//                break;
-            } finally {
-                closeConnections();
+                case "DELETE":
+                    handleDelete();
+                    break;
+                    
+                case "SIGNUP":
+                    handleSignUp();
+                    break;
+                default:
+                    System.out.println("Unknown request: " + request);
+                    break;
             }
-//    	}
+        } catch (IOException e) {
+            System.out.println("Client disconnected: " + e.getMessage());
+            closeConnections();
+        } finally {
+            //closeConnections();
+        }
+       
     }
 
     // Xử lý từng loại yêu cầu
@@ -110,6 +131,8 @@ public class ClientHandler implements Runnable {
     private void handleUpload2() {
         
     }
+    
+    
     
     private void handleSignUp() {
         SignUp.signUp(dis, dos);
@@ -134,9 +157,41 @@ public class ClientHandler implements Runnable {
     private void handleDelete() {
         deleteHandler.deleteHandler(dis, dos);
     }
+    
+    private boolean handleAuthenticToken() {
+    	boolean success = false;
+    	try {
+			String username = dis.readUTF();
+			String token = dis.readUTF();
+			success = sessionManager.isValidToken(username, token);
+			dos.writeBoolean(success);
+			System.out.println("Xác thực Token thành công. Username "+ username + " - Token: " + token);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return success;
+		}
+    	return success;
+    }
 
 	private void handleLogin() {
-        login.verifyCredentials(dis, dos);
+		try {
+			String username = dis.readUTF();
+			String password = dis.readUTF();
+	        if(login.verifyCredentials(username, password)) {
+	        	String token = sessionManager.generateRandomToken();
+	        	dos.writeBoolean(true);
+	        	dos.writeUTF(username);
+	        	dos.writeUTF(token);
+	        	sessionManager.addToken(username, token);
+	        	sessionManager.printAllTokens();
+	        } else {
+	        	dos.writeBoolean(false);
+	        }
+	        dos.flush();
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
     }
     // Đóng kết nối và giải phóng tài nguyên
     private void closeConnections() {

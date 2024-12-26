@@ -77,6 +77,7 @@ public class HomePageController implements ActionListener{
     	File file = new File(path);
     	if(!path.isEmpty() && file.isFile()) {
     		networkController.connect();
+    		networkController.authenticToken();
         	networkController.sendCommand("UP_LOAD");
         	fileUploader.uploadFile(directoryHandler.getCurrentDirectoryPath(), path,
         			networkController.getOutputStream());
@@ -89,6 +90,7 @@ public class HomePageController implements ActionListener{
     
     private void btn_Load_Click() {
     	networkController.connect();
+    	networkController.authenticToken();
     	networkController.sendCommand("LOAD");
 		view.updateFileList(directoryHandler.loadFileList(networkController.getInputStream(),
 				networkController.getOutputStream()));
@@ -102,12 +104,14 @@ public class HomePageController implements ActionListener{
     		List<FileInformation> listFile = view.getselectedFile();
     		if(listFile.size() == 1 && listFile.getFirst().isFile()) {
     			networkController.connect();
+    			networkController.authenticToken();
             	networkController.sendCommand("DOWN_LOAD");
             	fileDownloader.downloadFile(directoryHandler.getCurrentDirectoryPath(), listFile.getFirst(), 
             			networkController.getInputStream(), networkController.getOutputStream());
             	networkController.disconnect();
     		} else if(listFile.size() >= 1) {
     			networkController.connect();
+    			networkController.authenticToken();
             	networkController.sendCommand("DOWN_LOAD_2");
             	fileDownloader.downloadFileWithZip(directoryHandler.getCurrentDirectoryPath(), listFile,
             			networkController.getInputStream(), networkController.getOutputStream());
@@ -120,6 +124,7 @@ public class HomePageController implements ActionListener{
 		List<FileInformation> fileInformationList = view.getselectedFile();
 		if(!fileInformationList.isEmpty()) {
 			networkController.connect();
+			networkController.authenticToken();
 	        networkController.sendCommand("DELETE");
 	        fileDeleter.deleteFiles(directoryHandler.getCurrentDirectoryPath(), fileInformationList, 
 	        		networkController.getInputStream(), networkController.getOutputStream());
@@ -153,6 +158,7 @@ public class HomePageController implements ActionListener{
 			FileInformation fileInformation = new FileInformation();
 			fileInformation.setName(newDirectory);
 			networkController.connect();
+			networkController.authenticToken();
 	        networkController.sendCommand("NEW_DIRECTORY");
 	        boolean success = directoryHandler.createNewDirectory(fileInformation, 
 	        		networkController.getInputStream(), networkController.getOutputStream());

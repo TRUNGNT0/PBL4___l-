@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import server.model.BO.SessionManager;
+
 public class MyServer {
 	private static final int SERVER_PORT = 8888;
 	private static final int threadPoolSize = 100;
@@ -14,7 +16,7 @@ public class MyServer {
     private ServerSocket serverSocket;
     private static String homeDirectoryPath;
     
-    
+    private SessionManager sessionManager;
 
     // Nhóm luồng cố định
     private ExecutorService executorService;
@@ -26,6 +28,7 @@ public class MyServer {
 
     public MyServer() {
         this.port = SERVER_PORT;
+        sessionManager = new SessionManager();
         this.executorService = Executors.newFixedThreadPool(threadPoolSize); // Khởi tạo nhóm luồng cố định
     }
 
@@ -40,7 +43,7 @@ public class MyServer {
                 System.out.println("Kết nối từ: " + socket.getInetAddress());
                 
                 // Nộp ClientHandler vào ExecutorService
-                executorService.submit(new ClientHandler(socket));
+                executorService.submit(new ClientHandler(socket, this.sessionManager));
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -2,6 +2,8 @@ package client.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 import client.model.BO.M_Login;
 import client.view.LoginPage;
@@ -10,6 +12,9 @@ public class LoginPageController implements ActionListener{
 	private LoginPage view;
 	private NetworkController networkController;
 	private M_Login loginHandler;
+	
+	
+	
 	
 	public LoginPageController(NetworkController networkController) {
 		view = new LoginPage(this);
@@ -23,26 +28,49 @@ public class LoginPageController implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
-		if ("Login".equals(command)) {
-			btn_Login_Click();
-		} else if ("Sign up".equals(command)) {
-			btn_SignUp_Click();
-		}
+		switch (command) {
+	    case "Login":
+	        btn_Login_Click();
+	        break;
+	        
+	    case "Sign up":
+	        btn_SignUp_Click();
+	        break;
+	        
+	    default:
+	        view.showError("Lựa chọn không hợp lệ");
+	        break;
+	}
+
 	}
 	
 	private void btn_Login_Click() {
 		String username = view.getUsername();
 		String password = view.getPassword();
-		
 		if (username.isEmpty() || password.isEmpty()) {
 			view.showError("Vui lòng nhập đầy đủ thông tin");
 			return;
 		} else {
-			boolean success = login(username, password);
+			networkController.connect();
+			boolean success = false;
+			try {
+				success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
+				if(success) {
+					DataInputStream dis = networkController.getInputStream();
+					username = dis.readUTF();
+					String token = dis.readUTF();
+					networkController.setUsername(username);
+					networkController.setToken(token);
+				}
+			} catch (IOException e) {
+				view.showError("Có lỗi trong quá trình đăng nhập, kiểm tra kết nối");
+				e.printStackTrace();
+			}
+			networkController.disconnect();
 			if(success) {
 				new HomePageController(username, networkController);
-                view.setVisible(false); // Ẩn V_Login
-                view.dispose(); // Giải phóng bộ nhớ của V_Login
+                view.setVisible(false); 
+                view.dispose();
 			} else {
 				view.showError("Tên đăng nhập hoặc mật khẩu không chính xác");
 				return;
@@ -51,12 +79,5 @@ public class LoginPageController implements ActionListener{
     }
 	private void btn_SignUp_Click() {
 		new SignUpPageController(networkController); // Tạo controller cho SignUpPage
-	}
-	
-	private boolean login(String username, String password) {
-		networkController.connect();
-		boolean success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
-		networkController.disconnect();
-		return success;
 	}
 }

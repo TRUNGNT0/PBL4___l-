@@ -12,20 +12,47 @@ public class NetworkController {
     private DataOutputStream dos;
     private DataInputStream dis;
 
+    private String username;
+    private String token;
+    
     public NetworkController(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
+        
+        this.username = "";
+        this.token = "";
     }
 
-    public void connect() {
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public void connect() {
         try {
         	socket = new Socket(serverAddress, serverPort);
 			dos = new DataOutputStream(socket.getOutputStream());
 			dis = new DataInputStream(socket.getInputStream());
 	        System.out.println("Kết nối đến server " + serverAddress + " qua cổng " + serverPort);
         } catch (IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
+		}
+    }
+    
+    public boolean authenticToken() {
+    	try {
+    		dos.writeUTF("AUTHENTIC_TOKEN");
+			dos.writeUTF(username);
+			dos.writeUTF(token);
+	    	boolean success = dis.readBoolean();
+	    	return success;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
 		}
     }
 

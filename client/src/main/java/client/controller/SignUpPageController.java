@@ -2,6 +2,7 @@ package client.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import client.model.BO.SignUpHandler;
 import client.view.SignUpPage;
@@ -45,7 +46,14 @@ public class SignUpPageController implements ActionListener {
 
         // Kết nối và gửi yêu cầu đăng ký
         networkController.connect();
-        boolean success = signUpHandler.signUp(username, password, networkController.getInputStream(), networkController.getOutputStream());
+        
+        boolean success = false;
+		try {
+			success = signUpHandler.signUp(username, password, networkController.getInputStream(), networkController.getOutputStream());
+		} catch (IOException e) {
+			view.showError("Có lỗi trong quá trình đăng kí, kiểm tra kết nối mạng");
+			e.printStackTrace();
+		}
         networkController.disconnect();
 
         if (success) {
