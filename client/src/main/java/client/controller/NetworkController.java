@@ -22,14 +22,11 @@ public class NetworkController {
         this.username = "";
         this.token = "";
     }
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
+    
+    public void receiveToken() throws IOException {
+		username = dis.readUTF();
+		token = dis.readUTF();
+    }
 
 	public void connect() {
         try {

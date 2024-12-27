@@ -65,9 +65,8 @@ public class SignUpPageController implements ActionListener {
     }
     
     public boolean containsSpecialCharacters(String input) {
-        // Định nghĩa các ký tự cần kiểm tra
+    	
         String specialCharacters = "/\\:*?\"<>|";
-
         for (char c : input.toCharArray()) {
             if (specialCharacters.indexOf(c) >= 0) {
                 return true; 

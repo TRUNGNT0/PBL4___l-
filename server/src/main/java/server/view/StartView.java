@@ -16,14 +16,14 @@ import javax.swing.JTextField;
 
 import server.controller.MyServer;
 
-public class V_Setup extends JFrame implements ActionListener{
+public class StartView extends JFrame implements ActionListener{
 
     private static final long serialVersionUID = 1L;
 
     private JTextField tf_HomeDirectoryPath;
     private JButton btn_ChooseDirectory, btn_Start;
 
-    public V_Setup() {
+    public StartView() {
         init();
     }
 
@@ -31,7 +31,7 @@ public class V_Setup extends JFrame implements ActionListener{
         //
         // JFrame
         //
-        this.setTitle("Server Setup");
+        this.setTitle("Server Setup Start View");
         this.setSize(600, 400);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);;
@@ -81,7 +81,7 @@ public class V_Setup extends JFrame implements ActionListener{
 	    case "Choose Directory":
 	    	JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Chỉ chọn thư mục
-            int result = fileChooser.showOpenDialog(V_Setup.this);
+            int result = fileChooser.showOpenDialog(StartView.this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File selectedDirectory = fileChooser.getSelectedFile();
                 tf_HomeDirectoryPath.setText(selectedDirectory.getAbsolutePath());
@@ -89,8 +89,13 @@ public class V_Setup extends JFrame implements ActionListener{
 	        break;
 	         
 	    case "Start":
-	    	MyServer server = new MyServer();
-	        server.startServer(tf_HomeDirectoryPath.getText());
+	    	Thread thread = new Thread(() -> {
+	            System.out.println("Luồng đang chạy: " + Thread.currentThread().getName());
+	            MyServer server = new MyServer();
+		        server.startServer(tf_HomeDirectoryPath.getText());
+	        });
+	        thread.start();
+	        this.dispose();
 	        break;
 	        
 	    default:

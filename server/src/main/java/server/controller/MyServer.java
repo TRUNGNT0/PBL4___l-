@@ -11,14 +11,16 @@ import server.model.BO.SessionManager;
 public class MyServer {
 	private static final int SERVER_PORT = 8888;
 	private static final int threadPoolSize = 100;
-	
+	//Các thuộc tính của Server
     private int port;
     private ServerSocket serverSocket;
     private static String homeDirectoryPath;
+    //Giao diện Admin 
     
+    //Đối tượng quản lý sessionManager
     private SessionManager sessionManager;
 
-    // Nhóm luồng cố định
+    // Nhóm luồng cố định để chạy Client Handler
     private ExecutorService executorService;
 
     // Getter để các lớp khác lấy thông tin đường dẫn
@@ -48,7 +50,6 @@ public class MyServer {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            // Đảm bảo đóng server khi xảy ra lỗi
             if (serverSocket != null && !serverSocket.isClosed()) {
                 try {
                     serverSocket.close();

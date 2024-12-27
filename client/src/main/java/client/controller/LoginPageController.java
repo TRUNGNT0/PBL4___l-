@@ -2,7 +2,6 @@ package client.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import client.model.BO.M_Login;
@@ -12,7 +11,6 @@ public class LoginPageController implements ActionListener{
 	private LoginPage view;
 	private NetworkController networkController;
 	private M_Login loginHandler;
-	
 	
 	
 	
@@ -50,33 +48,31 @@ public class LoginPageController implements ActionListener{
 		if (username.isEmpty() || password.isEmpty()) {
 			view.showError("Vui lòng nhập đầy đủ thông tin");
 			return;
-		} else {
-			networkController.connect();
-			boolean success = false;
-			try {
-				success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
-				if(success) {
-					DataInputStream dis = networkController.getInputStream();
-					username = dis.readUTF();
-					String token = dis.readUTF();
-					networkController.setUsername(username);
-					networkController.setToken(token);
-				}
-			} catch (IOException e) {
-				view.showError("Có lỗi trong quá trình đăng nhập, kiểm tra kết nối");
-				e.printStackTrace();
-			}
-			networkController.disconnect();
+		} 
+
+		networkController.connect();
+		boolean success = false;
+		try {
+			success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
 			if(success) {
-				new HomePageController(username, networkController);
-                view.setVisible(false); 
-                view.dispose();
-			} else {
-				view.showError("Tên đăng nhập hoặc mật khẩu không chính xác");
-				return;
+				networkController.receiveToken();
 			}
+		} catch (IOException e) {
+			view.showError("Có lỗi trong quá trình đăng nhập, kiểm tra kết nối");
+			e.printStackTrace();
+		}
+		networkController.disconnect();
+		
+		if(success) {
+			new HomePageController(username, networkController);
+            view.setVisible(false); 
+            view.dispose();
+		} else {
+			view.showError("Tên đăng nhập hoặc mật khẩu không chính xác");
+			return;
 		}
     }
+	
 	private void btn_SignUp_Click() {
 		new SignUpPageController(networkController); // Tạo controller cho SignUpPage
 	}
