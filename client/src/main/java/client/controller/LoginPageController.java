@@ -55,7 +55,7 @@ public class LoginPageController implements ActionListener{
 		try {
 			success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
 			if(success) {
-				networkController.receiveToken();
+				networkController.receiveSessionId();
 			}
 		} catch (IOException e) {
 			view.showError("Có lỗi trong quá trình đăng nhập, kiểm tra kết nối");

@@ -64,7 +64,7 @@ public class ClientHandler implements Runnable {
                 return;
                 
 			case "AUTHENTIC_TOKEN":
-                isLogin = handleAuthenticToken();
+                isLogin = handleAuthenticSessionId();
                 if(isLogin) {
                 	break;
                 } else return;
@@ -158,14 +158,14 @@ public class ClientHandler implements Runnable {
         deleteHandler.deleteHandler(dis, dos);
     }
     
-    private boolean handleAuthenticToken() {
+    private boolean handleAuthenticSessionId() {
     	boolean success = false;
     	try {
 			String username = dis.readUTF();
 			String token = dis.readUTF();
-			success = sessionManager.isValidToken(username, token);
+			success = sessionManager.isValidSessionId(username, token);
 			dos.writeBoolean(success);
-			System.out.println("Xác thực Token thành công. Username "+ username + " - Token: " + token);
+			System.out.println("Xác thực SessionId thành công. Username "+ username + " - SessionId: " + token);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return success;
@@ -178,12 +178,12 @@ public class ClientHandler implements Runnable {
 			String username = dis.readUTF();
 			String password = dis.readUTF();
 	        if(login.verifyCredentials(username, password)) {
-	        	String token = sessionManager.generateRandomToken();
+	        	String token = sessionManager.generateRandomSessionId();
 	        	dos.writeBoolean(true);
 	        	dos.writeUTF(username);
 	        	dos.writeUTF(token);
-	        	sessionManager.addToken(username, token);
-	        	sessionManager.printAllTokens();
+	        	sessionManager.addSessionId(username, token);
+	        	sessionManager.printAllSessionId();
 	        } else {
 	        	dos.writeBoolean(false);
 	        }

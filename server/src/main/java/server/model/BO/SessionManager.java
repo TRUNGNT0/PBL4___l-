@@ -8,7 +8,7 @@ public class SessionManager {
     private static final int KEYMAP_MAXSIZE = 500;
 
     // LinkedHashMap với cơ chế tự động xóa phần tử cũ nhất khi vượt quá kích thước tối đa
-    private final LinkedHashMap<String, String> keyMap;
+    private final LinkedHashMap<String, String> keyMap;		//<username, sessionId>
 
     public SessionManager() {
         keyMap = new LinkedHashMap<String, String>(KEYMAP_MAXSIZE, 0.75f, true) {
@@ -29,12 +29,12 @@ public class SessionManager {
     /**
      * Kiểm tra tính hợp lệ của token và username
      * 
-     * @param token    Token cần kiểm tra
+     * @param sessionId    sessionID cần kiểm tra
      * @param username Tên người dùng
      * @return true nếu hợp lệ, false nếu không
      */
-    public synchronized boolean isValidToken(String username, String token) {
-        return keyMap.containsKey(username) && keyMap.get(username).equals(token);
+    public synchronized boolean isValidSessionId(String username, String sessionId) {
+        return keyMap.containsKey(username) && keyMap.get(username).equals(sessionId);
     }
 
     /**
@@ -42,24 +42,24 @@ public class SessionManager {
      * 
      * @return Chuỗi token ngẫu nhiên
      */
-    public String generateRandomToken() {
+    public String generateRandomSessionId() {
         return UUID.randomUUID().toString();
     }
 
     /**
      * Thêm token và username vào hệ thống
      * 
-     * @param token    Token được thêm
+     * @param sessionId    Token được thêm
      * @param username Tên người dùng
      */
-    public synchronized void addToken(String username, String token) {
-        keyMap.put(username, token);
+    public synchronized void addSessionId(String username, String sessionId) {
+        keyMap.put(username, sessionId);
     }
     
-    public synchronized void printAllTokens() {
-        System.out.println("Danh sách các token và username:");
+    public synchronized void printAllSessionId() {
+        System.out.println("Danh sách các sessionId và username:");
         for (Map.Entry<String, String> entry : keyMap.entrySet()) {
-            System.out.println("Username: " + entry.getKey() + " - Token: " + entry.getValue());
+            System.out.println("Username: " + entry.getKey() + " - SessionId: " + entry.getValue());
         }
     }
 }

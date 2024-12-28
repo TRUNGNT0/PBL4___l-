@@ -13,19 +13,19 @@ public class NetworkController {
     private DataInputStream dis;
 
     private String username;
-    private String token;
+    private String sessionId;
     
     public NetworkController(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
         
         this.username = "";
-        this.token = "";
+        this.sessionId = "";
     }
     
-    public void receiveToken() throws IOException {
+    public void receiveSessionId() throws IOException {
 		username = dis.readUTF();
-		token = dis.readUTF();
+		sessionId = dis.readUTF();
     }
 
 	public void connect() {
@@ -44,7 +44,7 @@ public class NetworkController {
     	try {
     		dos.writeUTF("AUTHENTIC_TOKEN");
 			dos.writeUTF(username);
-			dos.writeUTF(token);
+			dos.writeUTF(sessionId);
 	    	boolean success = dis.readBoolean();
 	    	return success;
 		} catch (IOException e) {
