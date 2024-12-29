@@ -13,7 +13,6 @@ public class LoginPageController implements ActionListener{
 	private M_Login loginHandler;
 	
 	
-	
 	public LoginPageController(NetworkController networkController) {
 		view = new LoginPage(this);
 		this.networkController = networkController;
@@ -38,7 +37,7 @@ public class LoginPageController implements ActionListener{
 	    default:
 	        view.showError("Lựa chọn không hợp lệ");
 	        break;
-	}
+		}
 
 	}
 	

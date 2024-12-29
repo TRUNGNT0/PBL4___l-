@@ -118,7 +118,7 @@ public class ClientHandler implements Runnable {
             System.out.println("Client disconnected: " + e.getMessage());
             closeConnections();
         } finally {
-            //closeConnections();
+            closeConnections();
         }
        
     }

@@ -16,7 +16,7 @@ public class MyServer {
     private ServerSocket serverSocket;
     private static String homeDirectoryPath;
     //Giao diện Admin 
-    
+    private AdminPageController adminPageController;
     //Đối tượng quản lý sessionManager
     private SessionManager sessionManager;
 
@@ -36,10 +36,11 @@ public class MyServer {
 
     public void startServer(String path) {
         homeDirectoryPath = path;
+        this.adminPageController = new AdminPageController(sessionManager);
         try {
             serverSocket = new ServerSocket(port);
             System.out.println("Server đang lắng nghe tại cổng " + port);
-
+            
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Kết nối từ: " + socket.getInetAddress());
