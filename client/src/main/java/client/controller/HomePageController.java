@@ -3,8 +3,12 @@ package client.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
+import client.controller.controllerInterface.ControllerInterface;
 import client.model.BO.DirectoryHandler;
 import client.model.BO.FileDeleter;
 import client.model.BO.FileDownloader;
@@ -12,7 +16,7 @@ import client.model.BO.FileUploader;
 import client.model.Bean.FileInformation;
 import client.view.HomePage;
 
-public class HomePageController implements ActionListener{
+public class HomePageController implements ActionListener, ControllerInterface{
     private NetworkController networkController;
     private HomePage view;
     
@@ -76,15 +80,23 @@ public class HomePageController implements ActionListener{
     	String path = view.chooseFile();
     	File file = new File(path);
     	if(!path.isEmpty() && file.isFile()) {
-    		networkController.connect();
+    		connect();
     		if(networkController.authenticToken()) {
             	networkController.sendCommand("UP_LOAD");
-            	fileUploader.uploadFile(directoryHandler.getCurrentDirectoryPath(), path,
-            			networkController.getOutputStream());
+            	try {
+					fileUploader.uploadFile(directoryHandler.getCurrentDirectoryPath(), path,
+							networkController.getOutputStream());
+				} catch (FileNotFoundException e) {
+					view.showError("Hãy đóng file trước khi gửi");
+					//e.printStackTrace();
+				} catch (IOException e) {
+					view.showError("Lỗi mạng không xác định");
+					//e.printStackTrace();
+				}
     		} else {
     			view.showError("Phiên đăng nhập đã hết hạn hãy đăng nhập lại");
     		}
-        	networkController.disconnect();	
+        	disconnect();	
     	} else if (!path.isEmpty() && file.isDirectory()) {
     		
     	}
@@ -92,7 +104,7 @@ public class HomePageController implements ActionListener{
     }
     
     private void btn_Load_Click() {
-    	networkController.connect();
+    	connect();
     	if(networkController.authenticToken()) {
     		networkController.sendCommand("LOAD");
     		view.updateFileList(directoryHandler.loadFileList(networkController.getInputStream(),
@@ -100,7 +112,7 @@ public class HomePageController implements ActionListener{
     	} else {
 			view.showError("Phiên đăng nhập đã hết hạn hãy đăng nhập lại");
 		}
-		networkController.disconnect();
+		disconnect();
 	}
     
     private void btn_Download_Click() {
@@ -109,7 +121,7 @@ public class HomePageController implements ActionListener{
     	} else {
     		List<FileInformation> listFile = view.getselectedFile();
     		if(listFile.size() == 1 && listFile.getFirst().isFile()) {
-    			networkController.connect();
+    			connect();
     			if(networkController.authenticToken()) {
     				networkController.sendCommand("DOWN_LOAD");
                 	fileDownloader.downloadFile(directoryHandler.getCurrentDirectoryPath(), listFile.getFirst(), 
@@ -117,9 +129,9 @@ public class HomePageController implements ActionListener{
     			} else {
     				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
     			}
-            	networkController.disconnect();
+            	disconnect();
     		} else if(listFile.size() >= 1) {
-    			networkController.connect();
+    			connect();
     			if(networkController.authenticToken()) {
     				networkController.sendCommand("DOWN_LOAD_2");
                 	fileDownloader.downloadFileWithZip(directoryHandler.getCurrentDirectoryPath(), listFile,
@@ -127,7 +139,7 @@ public class HomePageController implements ActionListener{
     			} else {
     				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
     			}
-            	networkController.disconnect();
+            	disconnect();
     		}
     	}
     }
@@ -135,7 +147,7 @@ public class HomePageController implements ActionListener{
 	private void btn_Delete_Click() {
 		List<FileInformation> fileInformationList = view.getselectedFile();
 		if(!fileInformationList.isEmpty()) {
-			networkController.connect();
+			connect();
 			if(networkController.authenticToken()) {
 				networkController.sendCommand("DELETE");
 		        fileDeleter.deleteFiles(directoryHandler.getCurrentDirectoryPath(), fileInformationList, 
@@ -143,7 +155,7 @@ public class HomePageController implements ActionListener{
 			} else {
 				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
 			}
-	        networkController.disconnect();
+	        disconnect();
 	        
 	        btn_Load_Click();
 		} else {
@@ -172,7 +184,7 @@ public class HomePageController implements ActionListener{
 		if(!newDirectory.isEmpty()) {
 			FileInformation fileInformation = new FileInformation();
 			fileInformation.setName(newDirectory);
-			networkController.connect();
+			connect();
 			if(networkController.authenticToken()) {
 				networkController.sendCommand("NEW_DIRECTORY");
 		        boolean success = directoryHandler.createNewDirectory(fileInformation, 
@@ -185,8 +197,30 @@ public class HomePageController implements ActionListener{
 			} else {
 				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
 			}
-	        networkController.disconnect();
+	        disconnect();
 		}
+	}
+	@Override
+	public void connect() {
+		try {
+			networkController.connect();
+		} catch (SocketTimeoutException e) {
+			view.showError("Mất quá nhiều thời gian để Server phản hồi");
+			//e.printStackTrace();
+		} catch (IOException e) {
+			view.showError("Lỗi mạng không xác định khi kết nối");
+			//e.printStackTrace();
+		}
+	}
+	@Override
+	public void disconnect() {
+		try {
+			networkController.disconnect();
+		} catch (IOException e) {
+			view.showError("Lỗi mạng không xác định khi ngắt kết nối");
+			//e.printStackTrace();
+		}
+		
 	}
 	
 }

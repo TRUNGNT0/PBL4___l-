@@ -28,16 +28,12 @@ public class NetworkController {
 		sessionId = dis.readUTF();
     }
 
-	public void connect() {
-        try {
-        	socket = new Socket(serverAddress, serverPort);
-			dos = new DataOutputStream(socket.getOutputStream());
-			dis = new DataInputStream(socket.getInputStream());
-	        System.out.println("Kết nối đến server " + serverAddress + " qua cổng " + serverPort);
-        } catch (IOException e) {
-
-			e.printStackTrace();
-		}
+	public void connect() throws IOException {
+		socket = new Socket(serverAddress, serverPort);
+		socket.setSoTimeout(5000);
+		dos = new DataOutputStream(socket.getOutputStream());
+		dis = new DataInputStream(socket.getInputStream());
+        System.out.println("Kết nối đến server " + serverAddress + " qua cổng " + serverPort);
     }
     
     public boolean authenticToken() {
@@ -53,16 +49,11 @@ public class NetworkController {
 		}
     }
 
-    public void disconnect() {
-    	try {
-    		if (dos != null) dos.close();
-            if (dis != null) dis.close();
-            if (socket != null) socket.close();
-            System.out.println("Đã ngắt kết nối với server.");
-		} catch (IOException e) {
-			// TODO: handle exception
-		}
-        
+    public void disconnect() throws IOException {
+    	if (dos != null) dos.close();
+        if (dis != null) dis.close();
+        if (socket != null) socket.close();
+        System.out.println("Đã ngắt kết nối với server.");
     }
 
     public void sendCommand(String command) {

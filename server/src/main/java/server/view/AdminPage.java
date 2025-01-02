@@ -28,7 +28,7 @@ public class AdminPage extends JFrame {
         setLayout(new BorderLayout());
 
         // Tạo bảng hiển thị
-        String[] columnNames = {"Username", "Session ID"};
+        String[] columnNames = {"Username", "Session ID", "Time"};
         tableModel = new DefaultTableModel(columnNames, 0);
         sessionTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(sessionTable);
@@ -37,7 +37,7 @@ public class AdminPage extends JFrame {
         deleteButton = new JButton("Delete");
         deleteButton.addActionListener(controller);
 
-        //Nut Load
+        // Nút Load
         loadButton = new JButton("Load");
         loadButton.addActionListener(controller);
         
@@ -62,16 +62,16 @@ public class AdminPage extends JFrame {
     }
     
     public List<String> getSelectedUser() {
-    	List<String> selectedUser = new ArrayList<String>();
-    	int[] selectedRows = sessionTable.getSelectedRows();
-    	if (selectedRows.length >= 0) {
-    		for(int i = 0; i < selectedRows.length; i++) {
-    			String username = (String) tableModel.getValueAt(i, 0);
+        List<String> selectedUser = new ArrayList<String>();
+        int[] selectedRows = sessionTable.getSelectedRows();
+        if (selectedRows.length >= 0) {
+            for (int i = 0; i < selectedRows.length; i++) {
+                String username = (String) tableModel.getValueAt(selectedRows[i], 0);
                 selectedUser.add(username);
-    		}
+            }
         } else {
             JOptionPane.showMessageDialog(null, "Vui lòng chọn một hàng để xóa.");
         }
-    	return selectedUser;
+        return selectedUser;
     }
 }

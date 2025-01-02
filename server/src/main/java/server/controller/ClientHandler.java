@@ -162,10 +162,10 @@ public class ClientHandler implements Runnable {
     	boolean success = false;
     	try {
 			String username = dis.readUTF();
-			String token = dis.readUTF();
-			success = sessionManager.isValidSessionId(username, token);
+			String sessionId = dis.readUTF();
+			success = sessionManager.isValidSessionId(username, sessionId);
 			dos.writeBoolean(success);
-			System.out.println("Xác thực SessionId thành công. Username "+ username + " - SessionId: " + token);
+			System.out.println("Xác thực SessionId thành công. Username "+ username + " - SessionId: " + sessionId);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return success;

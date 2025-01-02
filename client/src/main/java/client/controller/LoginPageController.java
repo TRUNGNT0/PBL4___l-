@@ -3,11 +3,13 @@ package client.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
+import client.controller.controllerInterface.ControllerInterface;
 import client.model.BO.M_Login;
 import client.view.LoginPage;
 
-public class LoginPageController implements ActionListener{
+public class LoginPageController implements ActionListener, ControllerInterface{
 	private LoginPage view;
 	private NetworkController networkController;
 	private M_Login loginHandler;
@@ -49,7 +51,7 @@ public class LoginPageController implements ActionListener{
 			return;
 		} 
 
-		networkController.connect();
+		connect();
 		boolean success = false;
 		try {
 			success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
@@ -60,7 +62,7 @@ public class LoginPageController implements ActionListener{
 			view.showError("Có lỗi trong quá trình đăng nhập, kiểm tra kết nối");
 			e.printStackTrace();
 		}
-		networkController.disconnect();
+		disconnect();
 		
 		if(success) {
 			new HomePageController(username, networkController);
@@ -74,5 +76,30 @@ public class LoginPageController implements ActionListener{
 	
 	private void btn_SignUp_Click() {
 		new SignUpPageController(networkController); // Tạo controller cho SignUpPage
+	}
+
+
+	@Override
+	public void connect() {
+		try {
+			networkController.connect();
+		} catch (SocketTimeoutException e) {
+			view.showError("Mất quá nhiều thời gian để Server phản hồi");
+			e.printStackTrace();
+		} catch (IOException e) {
+			view.showError("Lỗi mạng không xác định");
+			e.printStackTrace();
+		}
+	}
+
+
+	@Override
+	public void disconnect() {
+		try {
+			networkController.disconnect();
+		} catch (IOException e) {
+			view.showError("Lỗi mạng không xác định khi ngắt kết nối");
+			//e.printStackTrace();
+		}
 	}
 }

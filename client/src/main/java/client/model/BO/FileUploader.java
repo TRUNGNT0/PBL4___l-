@@ -21,11 +21,12 @@ public class FileUploader {
     }
     
     
-    public void uploadFile(String currentDirectoryPath, String filePath, DataOutputStream dos) {
+    public void uploadFile(String currentDirectoryPath, String filePath, DataOutputStream dos) throws IOException {
         File file = new File(filePath);
         FileInformation fileInformation = new FileInformation(file.getName(), file.lastModified(), file.length(), file.isFile());
+
         try (FileInputStream fis = new FileInputStream(file)) {
-            // Gửi đường dẫn hiện tại, và thông tin file
+            // Gửi đường dẫn hiện tại và thông tin file
             dos.writeUTF(currentDirectoryPath);
             fileInformation.sendFileInformation(dos);
 
@@ -38,10 +39,9 @@ public class FileUploader {
             dos.flush();
 
             System.out.println("Đã upload file: " + file.getName());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
+
     
     
 }
