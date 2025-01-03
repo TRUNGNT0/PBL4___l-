@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import client.controller.LoginPageController;
 
@@ -39,6 +40,11 @@ public class LoginPage extends JFrame {
 
     // Initialize components and layout
     private void init() {
+    	try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // JFrame configuration
         this.setTitle("Login");
         this.setSize(853, 480);

@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import client.controller.SettingPageController;
 
@@ -33,6 +34,11 @@ public class SettingPage extends JDialog {
     }
 
     private void init() {
+    	try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         setTitle("Setting");
         setSize(853, 480);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
