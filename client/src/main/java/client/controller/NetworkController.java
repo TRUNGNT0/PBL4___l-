@@ -4,6 +4,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 public class NetworkController {
     private String serverAddress;
@@ -14,8 +19,10 @@ public class NetworkController {
 
     private String username;
     private String sessionId;
+    private SecretKey AESKey;
     
-    public NetworkController(String serverAddress, int serverPort) {
+
+	public NetworkController(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
         
@@ -27,6 +34,14 @@ public class NetworkController {
 		username = dis.readUTF();
 		sessionId = dis.readUTF();
     }
+    
+    public SecretKey getAESKey() {
+		return AESKey;
+	}
+
+	public void setAESKey(SecretKey aESKey) {
+		AESKey = aESKey;
+	}
 
 	public void connect() throws IOException {
 		socket = new Socket(serverAddress, serverPort);
@@ -70,6 +85,34 @@ public class NetworkController {
         } catch (IOException e) {
             e.printStackTrace();
             return null; // Trả về null nếu có lỗi
+        }
+    }
+    
+    public void sendMessage(String message) {
+        try {
+            if (AESKey == null) {
+                throw new IllegalStateException("AESKey chưa được thiết lập. Không thể gửi tin nhắn.");
+            }
+
+            // Tạo Cipher cho AES với chế độ CBC
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            byte[] iv = new byte[16]; // Khởi tạo vector IV (16 byte mặc định)
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+            cipher.init(Cipher.ENCRYPT_MODE, AESKey, ivSpec);
+
+            // Mã hóa tin nhắn
+            byte[] encryptedMessage = cipher.doFinal(message.getBytes("UTF-8"));
+
+            // Mã hóa base64 để đảm bảo dữ liệu không bị lỗi trong quá trình truyền
+            String base64Message = Base64.getEncoder().encodeToString(encryptedMessage);
+
+            // Gửi tin nhắn đã mã hóa
+            dos.writeUTF(base64Message);
+
+            System.out.println("Đã gửi tin nhắn (đã mã hóa): " + message);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

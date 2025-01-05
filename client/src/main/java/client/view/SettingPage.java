@@ -103,4 +103,8 @@ public class SettingPage extends JDialog {
     public void showError(String text) {
         JOptionPane.showMessageDialog(this, text, "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
+    
+    public void showMessage(String text) {
+        JOptionPane.showMessageDialog(this, text, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+    }
 }

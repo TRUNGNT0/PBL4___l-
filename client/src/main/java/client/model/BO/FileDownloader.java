@@ -3,6 +3,11 @@ package client.model.BO;
 import java.io.*;
 import java.util.List;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
 import client.model.Bean.FileInformation;
 
 public class FileDownloader {
@@ -67,70 +72,177 @@ public class FileDownloader {
     	setDownLoadDirectoryPathToFile();
     }
     
-    public void downloadFile(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos) {
+//    public void downloadFile(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos, SecretKey secretKey) {
+//        try {
+//            dos.writeUTF(currentDirectoryPath); // Gửi đường dẫn hiện tại
+//            fileInformation.sendFileInformation(dos);
+//            fileInformation.receiveFileInformation(dis);
+//            long fileSize = fileInformation.getSize(); // Nhận kích thước file
+//            File file = new File(downLoadDirectoryPath, fileInformation.getName());
+//
+//            // Tạo thư mục nếu chưa tồn tại
+//            file.getParentFile().mkdirs(); 
+//
+//            // Ghi dữ liệu file vào ổ đĩa
+//            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
+//                byte[] buffer = new byte[4096];
+//                long totalRead = 0;
+//                int bytesRead;
+//
+//                while (totalRead < fileSize && (bytesRead = dis.read(buffer)) != -1) {
+//                    bos.write(buffer, 0, bytesRead);
+//                    totalRead += bytesRead;
+//                }
+//                bos.flush();
+//            }
+//                System.out.println("Đã tải file: " + fileInformation.getName() + " về " + downLoadDirectoryPath);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+    public void downloadFile(String currentDirectoryPath, FileInformation fileInformation, DataInputStream dis, DataOutputStream dos, SecretKey secretKey) {
         try {
             dos.writeUTF(currentDirectoryPath); // Gửi đường dẫn hiện tại
             fileInformation.sendFileInformation(dos);
+
+            // Nhận thông tin file từ server
             fileInformation.receiveFileInformation(dis);
             long fileSize = fileInformation.getSize(); // Nhận kích thước file
+
+            if (fileSize == 0) {
+                System.out.println("File không tồn tại trên server.");
+                return;
+            }
+
             File file = new File(downLoadDirectoryPath, fileInformation.getName());
+            file.getParentFile().mkdirs(); // Tạo thư mục nếu chưa tồn tại
 
-            // Tạo thư mục nếu chưa tồn tại
-            file.getParentFile().mkdirs(); 
+            // Nhận IV từ server
+            byte[] iv = new byte[16];
+            dis.readFully(iv); // Đọc đủ 16 byte IV
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
-            // Ghi dữ liệu file vào ổ đĩa
+            // Tạo Cipher để giải mã dữ liệu
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+
+            // Ghi dữ liệu file đã giải mã vào ổ đĩa
             try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
                 byte[] buffer = new byte[4096];
                 long totalRead = 0;
                 int bytesRead;
 
                 while (totalRead < fileSize && (bytesRead = dis.read(buffer)) != -1) {
-                    bos.write(buffer, 0, bytesRead);
+                    byte[] decryptedData = cipher.update(buffer, 0, bytesRead); // Giải mã dữ liệu
+                    if (decryptedData != null) {
+                        bos.write(decryptedData); // Ghi dữ liệu đã giải mã vào file
+                    }
                     totalRead += bytesRead;
                 }
+
+                // Xử lý dữ liệu còn lại sau khi giải mã
+                byte[] finalDecryptedData = cipher.doFinal();
+                if (finalDecryptedData != null) {
+                    bos.write(finalDecryptedData);
+                }
+
                 bos.flush();
             }
-                System.out.println("Đã tải file: " + fileInformation.getName() + " về " + downLoadDirectoryPath);
-        } catch (IOException e) {
+
+            System.out.println("Đã tải file: " + fileInformation.getName() + " về " + downLoadDirectoryPath);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    public void downloadFileWithZip(String currentDirectoryPath, List<FileInformation> fileInformationList, DataInputStream dis, DataOutputStream dos) {
-        try {
-        	dos.writeUTF(currentDirectoryPath);
-        	dos.writeInt(fileInformationList.size());
-        	for(FileInformation fileInfor : fileInformationList) {
-        		fileInfor.sendFileInformation(dos);
-        	}
-        	
-        	
-            // Nhận tên file ZIP từ server
-            FileInformation zipFileInformation = new FileInformation();
-            zipFileInformation.receiveFileInformation(dis);
+//    public void downloadFileWithZip(String currentDirectoryPath, List<FileInformation> fileInformationList, DataInputStream dis, DataOutputStream dos) {
+//        try {
+//        	dos.writeUTF(currentDirectoryPath);
+//        	dos.writeInt(fileInformationList.size());
+//        	for(FileInformation fileInfor : fileInformationList) {
+//        		fileInfor.sendFileInformation(dos);
+//        	}
+//        	
+//        	
+//            // Nhận tên file ZIP từ server
+//            FileInformation zipFileInformation = new FileInformation();
+//            zipFileInformation.receiveFileInformation(dis);
+//
+//            // Tạo file ZIP đích
+//            File zipFile = new File(downLoadDirectoryPath, zipFileInformation.getName() + ".zip");
+//
+//            // Tạo thư mục lưu trữ nếu chưa tồn tại
+//            zipFile.getParentFile().mkdirs();
+//
+//            // Ghi dữ liệu ZIP vào file
+//            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFile))) {
+//                byte[] buffer = new byte[4096];
+//                int bytesRead;
+//
+//                while ((bytesRead = dis.read(buffer)) != -1) {
+//                    bos.write(buffer, 0, bytesRead);
+//                }
+//
+//                bos.flush();
+//            }
+//
+//            System.out.println("Đã tải file ZIP về: " + zipFile.getAbsolutePath());
+//        } catch (IOException e) {
+//            System.err.println("Lỗi khi tải file ZIP: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
+    
+    public void downloadFileWithZip(
+    	    String currentDirectoryPath, 
+    	    List<FileInformation> fileInformationList, 
+    	    DataInputStream dis, 
+    	    DataOutputStream dos, 
+    	    SecretKey secretKey
+    	) {
+    	    try {
+    	        // Gửi đường dẫn thư mục và danh sách file đến server
+    	        dos.writeUTF(currentDirectoryPath);
+    	        dos.writeInt(fileInformationList.size());
+    	        for (FileInformation fileInfor : fileInformationList) {
+    	            fileInfor.sendFileInformation(dos);
+    	        }
 
-            // Tạo file ZIP đích
-            File zipFile = new File(downLoadDirectoryPath, zipFileInformation.getName() + ".zip");
+    	        // Nhận thông tin về file ZIP từ server
+    	        FileInformation zipFileInformation = new FileInformation();
+    	        zipFileInformation.receiveFileInformation(dis);
 
-            // Tạo thư mục lưu trữ nếu chưa tồn tại
-            zipFile.getParentFile().mkdirs();
+    	        // Tạo file ZIP đích
+    	        File zipFile = new File(downLoadDirectoryPath, zipFileInformation.getName() + ".zip");
+    	        zipFile.getParentFile().mkdirs(); // Tạo thư mục lưu trữ nếu chưa tồn tại
 
-            // Ghi dữ liệu ZIP vào file
-            try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFile))) {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
+    	        // Nhận IV từ server
+    	        byte[] iv = new byte[16];
+    	        dis.readFully(iv);
+    	        IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
-                while ((bytesRead = dis.read(buffer)) != -1) {
-                    bos.write(buffer, 0, bytesRead);
-                }
+    	        // Tạo Cipher để giải mã
+    	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    	        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
 
-                bos.flush();
-            }
+    	        // Giải mã và ghi dữ liệu ZIP vào file
+    	        try (
+    	            CipherInputStream cis = new CipherInputStream(dis, cipher);
+    	            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zipFile))
+    	        ) {
+    	            byte[] buffer = new byte[4096];
+    	            int bytesRead;
+    	            while ((bytesRead = cis.read(buffer)) != -1) {
+    	                bos.write(buffer, 0, bytesRead);
+    	            }
+    	            bos.flush();
+    	        }
 
-            System.out.println("Đã tải file ZIP về: " + zipFile.getAbsolutePath());
-        } catch (IOException e) {
-            System.err.println("Lỗi khi tải file ZIP: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    	        System.out.println("Đã tải và giải mã file ZIP về: " + zipFile.getAbsolutePath());
+    	    } catch (Exception e) {
+    	        System.err.println("Lỗi khi tải hoặc giải mã file ZIP: " + e.getMessage());
+    	        e.printStackTrace();
+    	    }
+    	}
+
 }

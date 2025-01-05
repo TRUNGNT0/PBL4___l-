@@ -1,16 +1,20 @@
 package server.model.BO;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.crypto.SecretKey;
+
+
 public class SessionManager {
     private static final int KEYMAP_MAXSIZE = 500;
-    private static final long INACTIVITY_LIMIT = 5 * 60 * 1000; // 10 phút tính bằng milliseconds
+    private static final long INACTIVITY_LIMIT = 10 * 60 * 1000; // 10 phút tính bằng milliseconds
 
     private final LinkedHashMap<String, Object[]> keyMap;
-
+    
     public SessionManager() {
         keyMap = new LinkedHashMap<String, Object[]>(KEYMAP_MAXSIZE, 0.75f, true) {
             private static final long serialVersionUID = 1L;
@@ -40,33 +44,35 @@ public class SessionManager {
         return UUID.randomUUID().toString();
     }
 
-    public synchronized void addSessionId(String username, String sessionId) {
-        keyMap.put(username, new Object[]{sessionId, System.currentTimeMillis()});
+//    public synchronized void addSessionId(String username, String sessionId) {
+//        keyMap.put(username, new Object[]{sessionId, System.currentTimeMillis()});
+//    }
+    public synchronized void addSessionId(String username, String sessionId, SecretKey secretKey) {
+        keyMap.put(username, new Object[]{sessionId, System.currentTimeMillis(), secretKey});
     }
 
     public synchronized void removeSessionId(String username) {
         keyMap.remove(username);
     }
-
-    public synchronized void printAllSessionId() {
-        System.out.println("Danh sách các sessionId và username:");
-        for (Map.Entry<String, Object[]> entry : keyMap.entrySet()) {
-            System.out.println("Username: " + entry.getKey() +
-                               " - SessionId: " + entry.getValue()[0] +
-                               " - Last Access: " + formatTimestamp((long) entry.getValue()[1]));
-        }
-    }
-
+    
     public synchronized Object[][] getAllSessions() {
-        Object[][] data = new Object[keyMap.size()][3]; // 3 cột: Username, SessionId, Last Access
+        Object[][] data = new Object[keyMap.size()][4]; // 4 cột: Username, SessionId, Last Access, SecretKey
         int i = 0;
         for (Map.Entry<String, Object[]> entry : keyMap.entrySet()) {
-            data[i][0] = entry.getKey();               // Username
-            data[i][1] = entry.getValue()[0];          // SessionId
+            data[i][0] = entry.getKey();                          // Username
+            data[i][1] = entry.getValue()[0];                     // SessionId
             data[i][2] = formatTimestamp((long) entry.getValue()[1]); // Last Access
+            data[i][3] = Base64.getEncoder().encodeToString(((SecretKey) entry.getValue()[2]).getEncoded()); // SecretKey
             i++;
         }
         return data;
+    }
+    
+    public synchronized SecretKey getSecretKeyByUsername(String username) {
+        if (keyMap.containsKey(username)) {
+            return (SecretKey) keyMap.get(username)[2]; // Lấy SecretKey từ mảng Object[]
+        }
+        return null; // Trả về null nếu không tìm thấy username
     }
 
     private String formatTimestamp(long timestamp) {

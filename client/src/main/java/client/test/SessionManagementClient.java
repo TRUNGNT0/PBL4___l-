@@ -23,7 +23,7 @@ public class SessionManagementClient {
                 String response = in.readUTF(); // Nhận phản hồi từ server
                 System.out.println("Server response: " + response);
 
-                // Lưu token nếu đăng nhập thành công
+                // Lưu sessionId nếu đăng nhập thành công
                 if (response.startsWith("LOGIN_SUCCESS")) {
                     token = response.split(" ")[1];
                     System.out.println("Your session token: " + token);

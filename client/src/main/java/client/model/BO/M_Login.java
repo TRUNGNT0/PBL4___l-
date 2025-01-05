@@ -4,12 +4,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import client.controller.NetworkController;
+
 public class M_Login {
 
-    public boolean login(String username, String password, DataInputStream dis, DataOutputStream dos) throws IOException {
-    	dos.writeUTF("LOGIN");  // Gửi yêu cầu "LOGIN" đến server
-        dos.writeUTF(username);  // Gửi username
-        dos.writeUTF(password);  // Gửi password
+    public boolean login(String username, String password, DataInputStream dis, DataOutputStream dos, NetworkController networkController) throws IOException {
+//        dos.writeUTF(username);  // Gửi username
+//        dos.writeUTF(password);  // Gửi password
+    	networkController.sendMessage(username);
+    	networkController.sendMessage(password);
         dos.flush();
 
         // Nhận phản hồi từ server

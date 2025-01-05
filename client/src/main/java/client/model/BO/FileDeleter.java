@@ -13,8 +13,9 @@ public class FileDeleter {
         
     }
     
-    public void deleteFiles(String currentDirectoryPath, List<FileInformation> fileInformationList, DataInputStream dis, DataOutputStream dos) {
-        try {
+    public boolean deleteFiles(String currentDirectoryPath, List<FileInformation> fileInformationList, DataInputStream dis, DataOutputStream dos) {
+    	boolean isDeleted = false;
+    	try {
             dos.writeUTF(currentDirectoryPath); // Gửi đường dẫn hiện tại
             dos.writeInt(fileInformationList.size());
             
@@ -22,15 +23,18 @@ public class FileDeleter {
             	fileInformation.sendFileInformation(dos);
             }
             for(FileInformation fileInformation : fileInformationList) {
-                boolean isDeleted = dis.readBoolean();
+                isDeleted = dis.readBoolean();
                 if (isDeleted) {
                     System.out.println("Đã xóa file: " + fileInformation.getName());
                 } else {
                     System.out.println("Không thể xóa file: " + fileInformation.getName());
                 }
+                
             }
+            return isDeleted;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
     }
 }

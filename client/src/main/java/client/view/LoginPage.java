@@ -115,4 +115,8 @@ public class LoginPage extends JFrame {
     public String getPassword() {
         return new String(tf_Password.getPassword());
     }
+    
+    public void showMessage(String text) {
+        JOptionPane.showMessageDialog(this, text, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+    }
 }

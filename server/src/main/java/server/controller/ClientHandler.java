@@ -5,6 +5,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 import server.model.BO.*;
 
@@ -22,6 +27,7 @@ public class ClientHandler implements Runnable {
     private DirectoryHandler directoryHandler;
 	private LoginHandler login;
     private SignUpHandler SignUp;
+    private Encryption encryption;
 
 
     public ClientHandler(Socket socket, SessionManager sessionManager) {
@@ -38,8 +44,9 @@ public class ClientHandler implements Runnable {
         this.downloadHandler = new DownloadHandler();
         this.deleteHandler = new DeleteHandler();
         this.directoryHandler = new DirectoryHandler();
-		this.login= new LoginHandler();
-        this.SignUp= new SignUpHandler();
+		this.login = new LoginHandler();
+        this.SignUp = new SignUpHandler();
+        this.encryption = new Encryption();
 
         try {
             dis = new DataInputStream(this.socket.getInputStream());
@@ -51,6 +58,7 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+    	String username = "";
     	boolean isLogin = false;
     	try {
         	String request1 = dis.readUTF();
@@ -64,7 +72,9 @@ public class ClientHandler implements Runnable {
                 return;
                 
 			case "AUTHENTIC_TOKEN":
-                isLogin = handleAuthenticSessionId();
+				username = dis.readUTF();
+				String sessionId = dis.readUTF();
+                isLogin = handleAuthenticSessionId(username, sessionId);
                 if(isLogin) {
                 	break;
                 } else return;
@@ -75,12 +85,12 @@ public class ClientHandler implements Runnable {
         	
         	String request = dis.readUTF(); // Nhận yêu cầu từ client
             switch (request) {
-				case "LOGIN":
-                    handleLogin();
-                    break;
+//				case "LOGIN":
+//                    handleLogin(sessionManager.getSecretKeyByUsername(username));
+//                    break;
                     
                 case "UP_LOAD":
-                    handleUpload();
+                    handleUpload(sessionManager.getSecretKeyByUsername(username));
                     break;
                     
                 case "UP_LOAD_2":
@@ -96,11 +106,11 @@ public class ClientHandler implements Runnable {
                     break;
 
                 case "DOWN_LOAD":
-                    handleDownload();
+                    handleDownload(sessionManager.getSecretKeyByUsername(username));
                     break;
                     
                 case "DOWN_LOAD_2":
-                    handleDownload2();
+                    handleDownload2(sessionManager.getSecretKeyByUsername(username));
                     break;
 
                 case "DELETE":
@@ -124,8 +134,8 @@ public class ClientHandler implements Runnable {
     }
 
     // Xử lý từng loại yêu cầu
-    private void handleUpload() {
-        uploadHandler.upLoadHandler(dis);
+    private void handleUpload(SecretKey secretKey) {
+        uploadHandler.upLoadHandler(dis, secretKey);
     }
     
     private void handleUpload2() {
@@ -146,23 +156,21 @@ public class ClientHandler implements Runnable {
         directoryHandler.loadHandler(dis, dos);
     }
 
-    private void handleDownload() {
-        downloadHandler.downLoadHandler(dis, dos);
+    private void handleDownload(SecretKey secretKey) {
+        downloadHandler.downLoadHandler(dis, dos, secretKey);
     }
     
-    private void handleDownload2() {
-    	downloadHandler.downLoadHandlerWithZip(dis, dos);
+    private void handleDownload2(SecretKey secretKey) {
+    	downloadHandler.downLoadHandlerWithZip(dis, dos, secretKey);
     }
 
     private void handleDelete() {
         deleteHandler.deleteHandler(dis, dos);
     }
     
-    private boolean handleAuthenticSessionId() {
+    private boolean handleAuthenticSessionId(String username, String sessionId) {
     	boolean success = false;
     	try {
-			String username = dis.readUTF();
-			String sessionId = dis.readUTF();
 			success = sessionManager.isValidSessionId(username, sessionId);
 			dos.writeBoolean(success);
 			System.out.println("Xác thực SessionId thành công. Username "+ username + " - SessionId: " + sessionId);
@@ -175,15 +183,16 @@ public class ClientHandler implements Runnable {
 
 	private void handleLogin() {
 		try {
-			String username = dis.readUTF();
-			String password = dis.readUTF();
+			SecretKey secretKey = this.encryption.createAESKey();
+			encryption.sendAESKeyToClient(secretKey, dis, dos);
+			String username = this.receiveMessage(secretKey);
+			String password = this.receiveMessage(secretKey);
 	        if(login.verifyCredentials(username, password)) {
-	        	String token = sessionManager.generateRandomSessionId();
+	        	String sessionId = sessionManager.generateRandomSessionId();
 	        	dos.writeBoolean(true);
 	        	dos.writeUTF(username);
-	        	dos.writeUTF(token);
-	        	sessionManager.addSessionId(username, token);
-	        	sessionManager.printAllSessionId();
+	        	dos.writeUTF(sessionId);
+	        	sessionManager.addSessionId(username, sessionId, secretKey);
 	        } else {
 	        	dos.writeBoolean(false);
 	        }
@@ -193,6 +202,39 @@ public class ClientHandler implements Runnable {
 			e.printStackTrace();
 		}
     }
+	
+	public String receiveMessage(SecretKey secretKey) {
+	    try {
+	        if (secretKey == null) {
+	            throw new IllegalStateException("AESKey chưa được thiết lập. Không thể nhận tin nhắn.");
+	        }
+
+	        // Nhận tin nhắn mã hóa (chuỗi Base64)
+	        String base64Message = dis.readUTF();
+
+	        // Tạo Cipher cho AES với chế độ CBC
+	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+	        byte[] iv = new byte[16]; // Khởi tạo vector IV (16 byte mặc định)
+	        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+	        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
+
+	        // Giải mã Base64 thành mảng byte
+	        byte[] encryptedMessage = Base64.getDecoder().decode(base64Message);
+
+	        // Giải mã tin nhắn
+	        byte[] decryptedMessage = cipher.doFinal(encryptedMessage);
+
+	        // Chuyển đổi mảng byte về chuỗi
+	        String message = new String(decryptedMessage, "UTF-8");
+
+	        System.out.println("Đã nhận tin nhắn (giải mã): " + message);
+	        return message;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null; // Trả về null nếu có lỗi
+	    }
+	}
     // Đóng kết nối và giải phóng tài nguyên
     private void closeConnections() {
         try {

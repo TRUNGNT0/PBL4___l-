@@ -28,7 +28,7 @@ public class AdminPage extends JFrame {
         setLayout(new BorderLayout());
 
         // Tạo bảng hiển thị
-        String[] columnNames = {"Username", "Session ID", "Time"};
+        String[] columnNames = {"Username", "Session ID", "Time", "ScretKey"};
         tableModel = new DefaultTableModel(columnNames, 0);
         sessionTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(sessionTable);

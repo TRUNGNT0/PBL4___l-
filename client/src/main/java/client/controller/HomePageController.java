@@ -42,7 +42,10 @@ public class HomePageController implements ActionListener, ControllerInterface{
     	String action = e.getActionCommand();
         switch (action) {
             case "UpLoad":
-                btn_Upload_Click();
+            	Thread thread = new Thread(() -> {
+                    btn_Upload_Click();
+                });
+                thread.start(); // Bắt đầu thực thi thread
                 break;
                 
             case "Load":
@@ -54,7 +57,10 @@ public class HomePageController implements ActionListener, ControllerInterface{
                 break;   
                 
             case "DownLoad":
-                btn_Download_Click();
+            	Thread thread2 = new Thread(() -> {
+            		btn_Download_Click();
+                });
+                thread2.start(); // Bắt đầu thực thi thread
                 break;
 
             case "Delete":
@@ -85,7 +91,7 @@ public class HomePageController implements ActionListener, ControllerInterface{
             	networkController.sendCommand("UP_LOAD");
             	try {
 					fileUploader.uploadFile(directoryHandler.getCurrentDirectoryPath(), path,
-							networkController.getOutputStream());
+							networkController.getOutputStream(), networkController.getAESKey());
 				} catch (FileNotFoundException e) {
 					view.showError("Hãy đóng file trước khi gửi");
 					//e.printStackTrace();
@@ -125,7 +131,8 @@ public class HomePageController implements ActionListener, ControllerInterface{
     			if(networkController.authenticToken()) {
     				networkController.sendCommand("DOWN_LOAD");
                 	fileDownloader.downloadFile(directoryHandler.getCurrentDirectoryPath(), listFile.getFirst(), 
-                			networkController.getInputStream(), networkController.getOutputStream());
+                			networkController.getInputStream(), networkController.getOutputStream(), networkController.getAESKey());
+                	view.showMessage("Tải xuống thành công");
     			} else {
     				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
     			}
@@ -135,7 +142,8 @@ public class HomePageController implements ActionListener, ControllerInterface{
     			if(networkController.authenticToken()) {
     				networkController.sendCommand("DOWN_LOAD_2");
                 	fileDownloader.downloadFileWithZip(directoryHandler.getCurrentDirectoryPath(), listFile,
-                			networkController.getInputStream(), networkController.getOutputStream());
+                			networkController.getInputStream(), networkController.getOutputStream(), networkController.getAESKey());
+                	view.showMessage("Tải xuống thành công");
     			} else {
     				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
     			}
@@ -150,8 +158,10 @@ public class HomePageController implements ActionListener, ControllerInterface{
 			connect();
 			if(networkController.authenticToken()) {
 				networkController.sendCommand("DELETE");
-		        fileDeleter.deleteFiles(directoryHandler.getCurrentDirectoryPath(), fileInformationList, 
-		        		networkController.getInputStream(), networkController.getOutputStream());
+		        if(!fileDeleter.deleteFiles(directoryHandler.getCurrentDirectoryPath(), fileInformationList, 
+		        		networkController.getInputStream(), networkController.getOutputStream())) {
+		        	view.showError("Không thể xóa file này");
+		        }
 			} else {
 				view.showError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
 			}

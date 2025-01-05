@@ -5,7 +5,10 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
+import javax.crypto.SecretKey;
+
 import client.controller.controllerInterface.ControllerInterface;
+import client.model.BO.Encryption;
 import client.model.BO.M_Login;
 import client.view.LoginPage;
 
@@ -52,11 +55,16 @@ public class LoginPageController implements ActionListener, ControllerInterface{
 		} 
 
 		connect();
+		networkController.sendCommand("LOGIN");
+		Encryption encryption = new Encryption();
+		SecretKey secretKey = encryption.receiveSecretKeyFromServer(networkController.getInputStream(), networkController.getOutputStream());
+		networkController.setAESKey(secretKey);
 		boolean success = false;
 		try {
-			success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream());
+			success = loginHandler.login(username, password, networkController.getInputStream(), networkController.getOutputStream(), networkController);
 			if(success) {
 				networkController.receiveSessionId();
+				System.out.println(secretKey);
 			}
 		} catch (IOException e) {
 			view.showError("Có lỗi trong quá trình đăng nhập, kiểm tra kết nối");
